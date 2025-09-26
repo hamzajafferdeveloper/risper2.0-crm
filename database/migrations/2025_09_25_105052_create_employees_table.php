@@ -19,8 +19,8 @@ return new class extends Migration
             $table->string('email');
             $table->string('profile_pic')->nullable();
             $table->string('password');
-            $table->foreignId('designation_id')->constrained('employee_designations')->nullOnDelete();
-            $table->foreignId('department_id')->constrained('departments')->nullOnDelete();
+            $table->foreignId('designation_id')->nullable()->constrained('employee_designations');
+            $table->foreignId('department_id')->nullable()->constrained('departments');
             $table->foreignId('country_id')->nullable()->constrained('countries');
             $table->string('mobile')->nullable();
             $table->enum('gender', ['male', 'female', 'other'])->default('male');
@@ -41,7 +41,7 @@ return new class extends Migration
             $table->decimal('hourly_date')->nullable();
             $table->foreignId('employee_type_id')->nullable()->constrained('employment_types');
             $table->enum('marital_status', ['Single', 'Married', 'Widower', 'Widow', 'Separate', 'Divorced', 'Engaged'])->default('Single');
-            $table->foreignId('business_address_id')->constrained('business_addresses')->nullOnDelete();
+            $table->foreignId('business_address_id')->nullable()->constrained('business_addresses');
             $table->timestamps();
         });
     }

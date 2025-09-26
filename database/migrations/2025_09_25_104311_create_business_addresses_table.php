@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('business_addresses', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('country_id')->constrained('countries')->nullOnDelete();
+            $table->foreignId('country_id')->nullable()->constrained('countries');
             $table->string('location');
             $table->string('tax_name')->nullable();
             $table->string('tax_number')->nullable();
