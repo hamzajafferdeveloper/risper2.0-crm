@@ -2729,16 +2729,16 @@ td.fc-header-center{
   background-color: rgb(39 49 66 / var(--tw-bg-opacity));
 }
 
-:is(.dark .flatpickr-am-pm),:is(.dark 
-.flatpickr-time input),:is(.dark 
-.numInputWrapper span),:is(.dark 
-.flatpickr-time .flatpickr-time-separator),:is(.dark 
+:is(.dark .flatpickr-am-pm),:is(.dark
+.flatpickr-time input),:is(.dark
+.numInputWrapper span),:is(.dark
+.flatpickr-time .flatpickr-time-separator),:is(.dark
 .flatpickr-current-month){
   --tw-text-opacity: 1;
   color: rgb(255 255 255 / var(--tw-text-opacity));
 }
 
-:is(.dark .flatpickr-prev-month svg),:is(.dark 
+:is(.dark .flatpickr-prev-month svg),:is(.dark
 .flatpickr-next-month svg){
   fill: #ffffff;
 }
