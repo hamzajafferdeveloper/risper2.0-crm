@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\EmployeeController;
+use App\Http\Controllers\Admin\SettingsController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('admin')->middleware('isAdmin')->name('admin.')->group(function () {
@@ -16,6 +17,11 @@ Route::prefix('admin')->middleware('isAdmin')->name('admin.')->group(function ()
         Route::get('/{id}/edit', [EmployeeController::class, 'edit'])->name('edit');
         Route::put('/{id}', [EmployeeController::class, 'update'])->name('update');
         Route::delete('/{id}', [EmployeeController::class, 'destroy'])->name('destroy');
+    });
+
+    Route::prefix('settings')->name('settings.')->group(function () {
+        Route::get('/company-settings', [SettingsController::class, 'index'])->name('index');
+        Route::get('/business-address', [SettingsController::class, 'businessAddress'])->name('business-address');
     });
 
 });

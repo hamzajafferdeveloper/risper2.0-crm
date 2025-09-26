@@ -16,14 +16,18 @@ class IsAdminMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $user = $request->user();
+        if (auth()->guest()){
+            return redirect()->route('login');
+        } else {
+            $user = $request->user();
 
-        $account = User::where('email', $user->email)->first();
+            $account = User::where('email', $user->email)->first();
 
-        if ($account) {
+            if ($account) {
+                return $next($request);
+            }
+
             return $next($request);
-        }
-
-        return $next($request);
+        };
     }
 }
