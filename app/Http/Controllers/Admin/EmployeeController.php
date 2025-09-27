@@ -4,24 +4,56 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Employee;
+use Exception;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
-use Exception;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Yajra\DataTables\Facades\DataTables;
 
 class EmployeeController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        return view("admin.employees.index");
+        if ($request->ajax()) {
+            $employees = Employee::with('department', 'designation');
+
+            return DataTables::of($employees)
+                ->addIndexColumn()
+                ->addColumn('department_name', function ($row) {
+                    return $row->department ? $row->department->name : '-';
+                })
+                ->addColumn('designation_name', function ($row) {
+                    return $row->designation ? $row->designation->name : '-';
+                })
+                ->addColumn('action', function ($row) {
+                    return '
+                        <a href="'.route('admin.employees.show', $row->id).'" class="btn btn-sm bg-blue-500 hover:bg-blue-600 text-white p-2 rounded" title="View">
+                            <iconify-icon icon="mdi:eye" class="text-lg"></iconify-icon>
+                        </a>
+
+                        <button class="btn btn-sm bg-green-500 hover:bg-green-600 text-white p-2 rounded editEmployee"
+                                data-id="'.$row->id.'" title="Edit">
+                            <iconify-icon icon="mdi:pencil" class="text-lg"></iconify-icon>
+                        </button>
+
+                        <button data-id="'.$row->id.'" class="btn btn-sm bg-red-500 hover:bg-red-600 text-white p-2 rounded deleteEmployee" title="Delete">
+                            <iconify-icon icon="mage:trash" class="text-lg"></iconify-icon>
+                        </button>
+                    ';
+                })
+                ->rawColumns(['status', 'action']) // allow HTML
+                ->make(true);
+        }
+
+        return view('admin.employees.index');
     }
 
     public function add()
     {
-        return view("admin.employees.add");
+        return view('admin.employees.add');
     }
 
     public function store(Request $request)
@@ -34,6 +66,7 @@ class EmployeeController extends Controller
                 'email' => 'required|email|unique:employees,email',
                 'profile_pic' => 'nullable|image|max:2048',
                 'password' => 'required|string|min:8',
+
                 'designation_id' => 'nullable|exists:employee_designations,id',
                 'department_id' => 'nullable|exists:departments,id',
                 'country_id' => 'nullable|exists:countries,id',
@@ -45,19 +78,23 @@ class EmployeeController extends Controller
                 'language_id' => 'nullable|exists:languages,id',
                 'address' => 'nullable|string|max:500',
                 'about' => 'nullable|string',
-                'login_allowed' => 'in:yes,no',
-                'receive_email_notification' => 'in:yes,no',
+                'login_allowed' => 'nullable',
+                'receive_email_notification' => 'nullable',
                 'slack_member_id' => 'nullable|string|max:255',
                 'skills' => 'nullable|array',
                 'probation_end_date' => 'nullable|date',
                 'notice_period_start_date' => 'nullable|date',
                 'notice_period_end_date' => 'nullable|date',
                 'currency_id' => 'nullable|exists:currencies,id',
-                'hourly_date' => 'nullable|numeric|min:0',
+                'hourly_rate' => 'nullable|numeric|min:0',
                 'employee_type_id' => 'nullable|exists:employment_types,id',
                 'marital_status' => 'in:Single,Married,Widower,Widow,Separate,Divorced,Engaged',
                 'business_address_id' => 'nullable|exists:business_addresses,id',
             ]);
+
+            // ✅ Convert checkbox to "yes"/"no"
+            $validated['login_allowed'] = $request->has('login_allowed') ? 'yes' : 'no';
+            $validated['receive_email_notification'] = $request->has('receive_email_notification') ? 'yes' : 'no';
 
             // Hash password
             $validated['password'] = Hash::make($validated['password']);
@@ -65,8 +102,12 @@ class EmployeeController extends Controller
             // Handle profile picture upload
             if ($request->hasFile('profile_pic')) {
                 $file = $request->file('profile_pic');
-                $uniqueName = Str::uuid()->toString() . '.' . $file->getClientOriginalExtension();
+                $uniqueName = Str::uuid()->toString().'.'.$file->getClientOriginalExtension();
                 $validated['profile_pic'] = $file->storeAs('employees', $uniqueName, 'public');
+            }
+
+            if ($request->filled('skills')) {
+                $validated['skills'] = explode(',', $request->input('skills'));
             }
 
             $employee = Employee::create($validated);
@@ -77,11 +118,13 @@ class EmployeeController extends Controller
             ], 201);
 
         } catch (QueryException $e) {
-            Log::error('Database error while creating employee: ' . $e->getMessage());
+            Log::error('Database error while creating employee: '.$e->getMessage());
+
             return response()->json(['error' => 'Database error occurred.'], 500);
 
         } catch (Exception $e) {
-            Log::error('Error while creating employee: ' . $e->getMessage());
+            Log::error('Error while creating employee: '.$e->getMessage());
+
             return response()->json(['error' => 'An unexpected error occurred.'], 500);
         }
     }
@@ -102,10 +145,10 @@ class EmployeeController extends Controller
             $employee = Employee::findOrFail($id);
 
             $validated = $request->validate([
-                'employee_id' => 'required|string|max:50|unique:employees,employee_id,' . $employee->id,
+                'employee_id' => 'required|string|max:50|unique:employees,employee_id,'.$employee->id,
                 'salutation' => 'in:Mr,Mrs,Miss,Dr.,Sir,Madam',
                 'name' => 'required|string|max:255',
-                'email' => 'required|email|unique:employees,email,' . $employee->id,
+                'email' => 'required|email|unique:employees,email,'.$employee->id,
                 'profile_pic' => 'nullable|image|max:2048',
                 'password' => 'nullable|string|min:8',
                 'designation_id' => 'nullable|exists:employee_designations,id',
@@ -115,7 +158,7 @@ class EmployeeController extends Controller
                 'gender' => 'in:male,female,other',
                 'joining_date' => 'required|date',
                 'date_of_birth' => 'nullable|date',
-                'reporting_to' => 'nullable|exists:employees,id|not_in:' . $employee->id,
+                'reporting_to' => 'nullable|exists:employees,id|not_in:'.$employee->id,
                 'language_id' => 'nullable|exists:languages,id',
                 'address' => 'nullable|string|max:500',
                 'about' => 'nullable|string',
@@ -134,7 +177,7 @@ class EmployeeController extends Controller
             ]);
 
             // Hash new password if provided
-            if (!empty($validated['password'])) {
+            if (! empty($validated['password'])) {
                 $validated['password'] = Hash::make($validated['password']);
             } else {
                 unset($validated['password']);
@@ -149,7 +192,7 @@ class EmployeeController extends Controller
 
                 // Save new file with unique name
                 $file = $request->file('profile_pic');
-                $uniqueName = Str::uuid()->toString() . '.' . $file->getClientOriginalExtension();
+                $uniqueName = Str::uuid()->toString().'.'.$file->getClientOriginalExtension();
                 $validated['profile_pic'] = $file->storeAs('employees', $uniqueName, 'public');
             }
 
@@ -161,11 +204,13 @@ class EmployeeController extends Controller
             ], 200);
 
         } catch (QueryException $e) {
-            Log::error('Database error while updating employee: ' . $e->getMessage());
+            Log::error('Database error while updating employee: '.$e->getMessage());
+
             return response()->json(['error' => 'Database error occurred.'], 500);
 
         } catch (Exception $e) {
-            Log::error('Error while updating employee: ' . $e->getMessage());
+            Log::error('Error while updating employee: '.$e->getMessage());
+
             return response()->json(['error' => 'An unexpected error occurred.'], 500);
         }
     }
@@ -183,17 +228,18 @@ class EmployeeController extends Controller
             $employee->delete();
 
             return response()->json([
-                'message' => 'Employee deleted successfully.'
+                'message' => 'Employee deleted successfully.',
             ], 200);
 
         } catch (QueryException $e) {
-            Log::error('Database error while deleting employee: ' . $e->getMessage());
+            Log::error('Database error while deleting employee: '.$e->getMessage());
+
             return response()->json(['error' => 'Database error occurred.'], 500);
 
         } catch (Exception $e) {
-            Log::error('Error while deleting employee: ' . $e->getMessage());
+            Log::error('Error while deleting employee: '.$e->getMessage());
+
             return response()->json(['error' => 'An unexpected error occurred.'], 500);
         }
     }
-
 }

@@ -26,6 +26,9 @@
     <link rel="stylesheet" href="{{ asset('assets/css/lib/file-upload.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/lib/audioplayer.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css">
 
     <!-- Vite (Tailwind + your app styles/scripts) -->
     @vite('resources/css/app.css')
@@ -35,6 +38,7 @@
 <body class="dark:bg-neutral-800 bg-neutral-100 dark:text-white">
     @yield('content-base')
 
+    <script src="//unpkg.com/alpinejs" defer></script>
     <!-- Vendor JS -->
     <script src="{{ asset('assets/js/lib/jquery-3.7.1.min.js') }}"></script>
     <script src="{{ asset('assets/js/lib/apexcharts.min.js') }}"></script>
@@ -50,6 +54,11 @@
     <script src="{{ asset('assets/js/lib/audioplayer.js') }}"></script>
     <script src="{{ asset('assets/js/flowbite.min.js') }}"></script>
     <script src="{{ asset('assets/js/app.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
+
 
     <!-- Page-specific scripts -->
     @stack('scripts')

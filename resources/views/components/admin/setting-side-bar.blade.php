@@ -23,15 +23,15 @@
     </div>
 
     <!-- Links -->
-    <ul id="settingsLinks" class="flex-1 overflow-y-auto">
+    <ul id="settingsLinks" class="flex-1 overflow-y-auto ">
         @foreach ($settingLinks as $link)
             @php
                 $isActive = $currentRoute === $link['route'];
             @endphp
             <li>
                 <a href="{{ route($link['route']) }}"
-                    class="block py-2 px-3 rounded
-                    {{ $isActive ? 'bg-blue-500 text-white dark:bg-blue-600' : 'hover:bg-blue-500 hover:text-white dark:hover:bg-blue-600' }}">
+                    class="block py-2 mb-2 px-3 rounded
+                    {{ $isActive ? 'bg-blue-500 text-white dark:bg-blue-600' : 'hover:bg-gray-300/30 hover:text-blue-600 dark:hover:bg-blue-600' }}">
                     {{ $link['name'] }}
                 </a>
             </li>

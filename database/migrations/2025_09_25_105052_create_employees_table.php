@@ -38,7 +38,7 @@ return new class extends Migration
             $table->date('notice_period_start_date')->nullable();
             $table->date('notice_period_end_date')->nullable();
             $table->foreignId('currency_id')->nullable()->constrained('currencies');
-            $table->decimal('hourly_date')->nullable();
+            $table->decimal('hourly_rate')->nullable();
             $table->foreignId('employee_type_id')->nullable()->constrained('employment_types');
             $table->enum('marital_status', ['Single', 'Married', 'Widower', 'Widow', 'Separate', 'Divorced', 'Engaged'])->default('Single');
             $table->foreignId('business_address_id')->nullable()->constrained('business_addresses');
