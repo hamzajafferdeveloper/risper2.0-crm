@@ -3,8 +3,7 @@
 @section('title', 'Dashboard')
 
 @section('content-admin')
-    <div x-data="{ showModal: false }" x-on:open-add-employee-modal.window="showModal = true"
-        x-on:close-add-employee-modal.window="showModal = false" class="grid grid-cols-12">
+    <div x-data="{ showModal: false, showEditModal: false, editEmployeeId: null }" class="grid grid-cols-12">
 
         <div class="col-span-12">
             <div class="card border-0 overflow-hidden">
@@ -39,14 +38,12 @@
             </div>
         </div>
 
-        <!-- Modal -->
+        <!-- Add Employee Modal -->
         <div x-show="showModal" x-cloak @keydown.escape.window="showModal = false"
             class="fixed inset-0 z-50 flex justify-end">
-            <!-- Backdrop -->
             <div x-show="showModal" x-transition.opacity.duration.300ms class="absolute inset-0 bg-black/50"
                 @click="showModal = false"></div>
 
-            <!-- Modal Content -->
             <div x-show="showModal" x-transition.scale.origin.center.duration.300ms
                 class="relative bg-white dark:bg-gray-800 rounded-l-xl shadow-2xl p-6 w-full max-w-7xl z-10">
                 <div class="flex justify-between items-center border-b pb-3 mb-4">
@@ -57,8 +54,40 @@
                 <x-admin.add-employee-form />
             </div>
         </div>
+
+        <!-- Edit Employee Modal -->
+        <div x-show="showEditModal" x-cloak
+            x-on:open-edit-employee-modal.window="
+             editEmployeeId = $event.detail.employeeId;
+             showEditModal = true;
+         "
+            @keydown.escape.window="showEditModal = false" class="fixed inset-0 z-50 flex justify-end">
+
+            <!-- Backdrop -->
+            <div x-show="showEditModal" x-transition.opacity.duration.300ms class="absolute inset-0 bg-black/50"
+                @click="showEditModal = false"></div>
+
+            <!-- Modal Content -->
+            <div x-show="showEditModal" x-transition.scale.origin.center.duration.300ms
+                class="relative bg-white dark:bg-gray-800 rounded-l-xl shadow-2xl p-6 w-full max-w-7xl z-10">
+
+                <div class="flex justify-between items-center border-b pb-3 mb-4">
+                    <h2 class="text-lg font-semibold">Edit Member</h2>
+                    <button @click="showEditModal = false" class="text-gray-500 hover:text-gray-700">✕</button>
+                </div>
+
+                <!-- Pass employeeId to component via Alpine -->
+                <div x-data="{ id: editEmployeeId }" x-init="$watch('id', value => { $refs.editForm.load(value) })">
+                    <div x-ref="editForm">
+                        <x-admin.edit-employee-form />
+                    </div>
+                </div>
+
+            </div>
+        </div>
     </div>
 @endsection
+
 
 @push('scripts')
     <script>
@@ -117,6 +146,40 @@
                     }
                 }
             });
+        });
+
+        $(document).on('click', '.editEmployee', function(e) {
+            e.preventDefault();
+            let employeeId = $(this).data('id');
+            // window.location.href = `/admin/employees/${employeeId}/edit`;
+            window.dispatchEvent(new CustomEvent('open-edit-employee-modal', {
+                detail: {
+                    employeeId
+                }
+            }));
+        });
+
+        $(document).on('click', '.deleteEmployee', function(e) {
+            e.preventDefault();
+            let employeeId = $(this).data('id');
+
+            if (confirm('Are you sure you want to delete this employee?')) {
+                $.ajax({
+                    // url: `/admin/employees/${employeeId}`,
+                    type: 'DELETE',
+                    data: {
+                        _token: '{{ csrf_token() }}'
+                    },
+                    success: function(response) {
+                        toastr.success('Employee deleted successfully!', 'Success');
+                        table.ajax.reload();
+                    },
+                    error: function(xhr) {
+                        toastr.error('❌ An error occurred while deleting the employee.',
+                            'Error');
+                    }
+                });
+            }
         });
 
         $(document).ready(function() {
