@@ -16,7 +16,6 @@ use Illuminate\View\Component;
 class AddEmployeeForm extends Component
 {
 
-    public $employee;
     public $designations;
     public $departments;
     public $countries;
