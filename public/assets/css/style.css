@@ -6856,13 +6856,14 @@ h6, .h6 {
 
 .sidebar-menu li > a.active-page{
   --tw-bg-opacity: 1;
-  background-color: rgb(72 127 255 / var(--tw-bg-opacity));
+  background-color: rgb(141 53 227);
   --tw-text-opacity: 1;
   color: rgb(255 255 255 / var(--tw-text-opacity));
 }
 
 .sidebar-menu li > a.active-page:hover{
   --tw-text-opacity: 1;
+  background-color: color-mix(in oklab, #8D35E3 80%, transparent) !important;
   color: rgb(255 255 255 / var(--tw-text-opacity));
 }
 
@@ -6893,7 +6894,8 @@ h6, .h6 {
 
 .sidebar-menu li a:hover{
   --tw-text-opacity: 1;
-  color: rgb(72 127 255 / var(--tw-text-opacity));
+  color: color-mix(in oklab, #8D35E3 80%, transparent) !important;
+  /* color: rgb(72 127 255 / var(--tw-text-opacity)); */
 }
 
 .sidebar-menu li a .menu-icon{

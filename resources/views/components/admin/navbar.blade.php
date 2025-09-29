@@ -28,7 +28,7 @@
                 </button>
 
                 <!-- Language Dropdown Start  -->
-                <div class="hidden sm:inline-block">
+                {{-- <div class="hidden sm:inline-block">
                     <button data-dropdown-toggle="dropdownInformation" class="has-indicator w-10 h-10 bg-neutral-200 dark:bg-neutral-700 dark:text-white rounded-full flex justify-center items-center" type="button">
                         <img src="{{ asset('assets/images/lang-flag.png') }}" alt="image" class="w-6 h-6 object-cover rounded-full">
                     </button>
@@ -125,8 +125,9 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                </div> --}}
                 <!-- Language Dropdown End  -->
+
                 <!-- Message Dropdown Start  -->
                 <button data-dropdown-toggle="dropdownMessage" class="has-indicator w-10 h-10 bg-neutral-200 dark:bg-neutral-700 rounded-full flex justify-center items-center" type="button">
                     <iconify-icon icon="mage:email" class="text-neutral-900 dark:text-white text-xl"></iconify-icon>

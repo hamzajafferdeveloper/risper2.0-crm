@@ -15,4 +15,14 @@ class Lead extends Model
         'lead_owner',
         'auto_convert_lead_to_client'
     ];
+
+    public function leadOwner()
+    {
+        return $this->belongsTo(Employee::class, 'lead_owner');
+    }
+
+    public function source()
+    {
+        return $this->belongsTo(LeadSource::class, 'lead_source_id');
+    }
 }

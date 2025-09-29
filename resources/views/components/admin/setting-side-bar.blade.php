@@ -1,4 +1,4 @@
-<div class="w-64 border border-gray-50 shadow-xl rounded-xl max-h-[80vh] h-screen bg-gray-100 dark:bg-gray-800 p-4 flex flex-col">
+<div class="w-64 max-h-[80vh] h-screen bg-gray-100 dark:bg-gray-800 p-4 flex flex-col">
     <style>
         .setting-sidebar-search {
             width: 14.25rem !important;
@@ -9,6 +9,11 @@
         $settingLinks = [
             ['name' => 'Company Settings', 'route' => 'admin.settings.index'],
             ['name' => 'Business Address', 'route' => 'admin.settings.business-address'],
+            ['name' => 'Languages', 'route' => 'admin.settings.languages'],
+            ['name' => 'Employees Designation', 'route' => 'admin.settings.employees-designation'],
+            ['name' => 'Employment Types', 'route' => 'admin.settings.employment-types'],
+            ['name' => 'Departments', 'route' => 'admin.settings.departments'],
+            ['name' => 'Leads', 'route' => 'admin.settings.leads'],
         ];
         $currentRoute = Route::currentRouteName();
     @endphp
@@ -31,7 +36,7 @@
             <li>
                 <a href="{{ route($link['route']) }}"
                     class="block py-2 mb-2 px-3 rounded
-                    {{ $isActive ? 'bg-blue-500 text-white dark:bg-blue-600' : 'hover:bg-gray-300/30 hover:text-blue-600 dark:hover:bg-blue-600' }}">
+                    {{ $isActive ? 'bg-[#8D35E3] text-white dark:bg-[#8D35E3]' : 'hover:!text-[#8D35E3]' }}">
                     {{ $link['name'] }}
                 </a>
             </li>
