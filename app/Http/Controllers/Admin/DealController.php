@@ -6,41 +6,89 @@ use App\Http\Controllers\Controller;
 use App\Models\Deal;
 use App\Models\DealAgent;
 use App\Models\DealCategory;
+use DB;
+use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
+use Log;
 use Yajra\DataTables\DataTables;
 
 class DealController extends Controller
 {
+
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $leads = Deal::with('leadOwner');
+            $deals = Deal::with(['lead', 'dealAgent', 'dealWatcher', 'dealStage'])->get();
 
-            return DataTables::of($leads)
+            return DataTables::of($deals)
                 ->addIndexColumn()
-                ->addColumn('action', function ($row) {
-                    return '
-                        <button class="btn btn-sm !bg-[#8D35E3] hover:!bg-[#8D35E3]/80 focus:!bg-[#8D35E3]/80 active:!bg-[#8D35E3]/80 dark:!bg-[#8D35E3]/80 dark:hover:!bg-[#8D35E3]/80 dark:focus:!bg-[#8D35E3]/80 dark:active:!bg-[#8D35E3]/80 text-white p-2 rounded editEmployee"
-                                data-id="'.$row->id.'" title="Edit">
-                            <iconify-icon icon="mdi:pencil" class="text-lg"></iconify-icon>
-                        </button>
-
-                        <button data-id="'.$row->id.'" class="btn btn-sm !bg-red-500 hover:!bg-red-500/80 focus:!bg-red-500/80 active:!bg-red-500/80 dark:!bg-red-500/80 dark:hover:!bg-red-500/80 dark:focus:!bg-red-500/80 dark:active:!bg-red-500/80 text-white p-2 rounded deleteEmployee" title="Delete">
-                            <iconify-icon icon="mage:trash" class="text-lg"></iconify-icon>
-                        </button>
-                    ';
-                })
-                ->rawColumns(['status', 'action']) // allow HTML
+                ->addColumn('lead_name', fn ($row) => $row->lead?->name ?? '-')
+                ->addColumn('lead_email', fn ($row) => $row->lead?->email ?? '-')
+                ->addColumn('deal_agent_name', fn ($row) => $row->dealAgent?->aggent?->name ?? '-')
+                ->addColumn('deal_watcher_name', fn ($row) => $row->dealWatcher?->name ?? '-')
+                ->rawColumns(['action'])
                 ->make(true);
         }
 
-        return view('admin.leads.index');
+        return view('admin.deals.index');
+    }
+    public function store(Request $request)
+    {
+        // ✅ Step 1: Validate input
+        $validator = Validator::make($request->all(), [
+            'lead_id' => 'required|exists:leads,id',
+            'name' => 'required|string|max:255',
+            'pipe_line_id' => 'required|exists:lead_piplines,id',
+            'deal_stage_id' => 'required|exists:deal_stages,id',
+            'deal_value' => 'required|numeric|min:0',
+            'close_date' => 'required|date',
+            'deal_category_id' => 'required|exists:deal_categories,id',
+            'deal_agent' => 'nullable|exists:deal_agents,id',
+            'deal_watcher_id' => 'nullable|exists:employees,id',
+        ]);
+
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        DB::beginTransaction();
+
+        try {
+            Deal::create([
+                'lead_id' => $request->lead_id,
+                'name' => $request->name,
+                'pipe_line_id' => $request->pipe_line_id,
+                'deal_stage_id' => $request->deal_stage_id,
+                'currency_id' => 1, // default currency
+                'deal_value' => $request->deal_value,
+                'close_date' => $request->close_date,
+                'deal_category_id' => $request->deal_category_id,
+                'deal_agent_id' => $request->deal_agent ?? auth()->id(),
+                'deal_watcher_id' => $request->deal_watcher_id,
+            ]);
+
+            DB::commit();
+            return response()->json([
+                'success' => true,
+                'message' => 'Deal created successfully.',
+            ], 201);
+        } catch (Exception $e) {
+            DB::rollback();
+            Log::error($e->getMessage());
+            throw $e;
+        }
     }
 
-    public function addCategory(Request $request){
+    public function addCategory(Request $request)
+    {
         if ($request->ajax()) {
             $validated = $request->validate([
-                'name'=> 'required',
+                'name' => 'required',
             ]);
 
             $deals = DealCategory::create($validated);
@@ -53,13 +101,14 @@ class DealController extends Controller
         }
     }
 
-    public function allCategory(Request $request){
+    public function allCategory(Request $request)
+    {
         if ($request->ajax()) {
             $category = DealCategory::all();
 
             return DataTables::of($category)
                 ->addIndexColumn()
-                ->rawColumns(['status','action'])
+                ->rawColumns(['status', 'action'])
                 ->make(true);
         }
 
@@ -68,10 +117,11 @@ class DealController extends Controller
         ], 201);
     }
 
-    public function storeDealAgent(Request $request){
+    public function storeDealAgent(Request $request)
+    {
         if ($request->ajax()) {
             $validated = $request->validate([
-                'aggent'=> 'required|exists:employees,id',
+                'aggent' => 'required|exists:employees,id',
                 'deal_category_id' => 'required|exists:deal_categories,id',
             ]);
 

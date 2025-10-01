@@ -3,33 +3,40 @@
 namespace App\View\Components\Admin;
 
 use App\Models\DealAgent;
+use App\Models\DealCategory;
+use App\Models\DealStage;
 use App\Models\Employee;
+use App\Models\Lead;
 use App\Models\LeadPipline;
-use App\Models\LeadSource;
 use Closure;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
 
-class AddLeadModal extends Component
+class AddDealForm extends Component
 {
 
-    public $lead_sources;
     public $employees;
+
+    public $leads;
 
     public $piplines;
 
     public $stages;
+
     public $dealAgents;
 
+    public $categories;
     /**
      * Create a new component instance.
      */
     public function __construct()
     {
-        $this->lead_sources = LeadSource::all();
         $this->employees = Employee::all();
+        $this->leads = Lead::all();
         $this->piplines = LeadPipline::all();
-        $this->dealAgents = DealAgent::all();
+        $this->stages = DealStage::all();
+        $this->dealAgents = DealAgent::with('aggent')->get();
+        $this->categories = DealCategory::all();
     }
 
     /**
@@ -37,6 +44,6 @@ class AddLeadModal extends Component
      */
     public function render(): View|Closure|string
     {
-        return view('components.admin.add-lead-modal');
+        return view('components.admin.add-deal-form');
     }
 }

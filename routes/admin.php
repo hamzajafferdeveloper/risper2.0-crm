@@ -52,7 +52,6 @@ Route::prefix('admin')->middleware('isAdmin')->name('admin.')->group(function ()
         Route::get('/all-lead-pipline', [LeadController::class, 'allLeadPipline'])->name('lead-pipline.all');
         Route::get('/all-deal-stages-by-piplines', [LeadController::class,'dealStages'])->name('deal-stages.byPipeline');
 
-
         Route::prefix('language')->name('languages.')->group(function () {
             Route::post('all', [LanguageController::class, 'store'])->name('store');
         });

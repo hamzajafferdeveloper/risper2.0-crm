@@ -503,6 +503,3 @@
         window.addSkill = addSkillRaw;
     });
 </script>
-<style>
-
-</style>

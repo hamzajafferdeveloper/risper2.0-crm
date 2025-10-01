@@ -18,7 +18,11 @@ class Lead extends Model
 
     public function leadOwner()
     {
-        return $this->belongsTo(Employee::class, 'lead_owner');
+        return $this->belongsTo(Employee::class, 'lead_owner', 'id');
+    }
+
+    public function leadAddedBy(){
+        return $this->belongsTo(Employee::class,'added_by', 'id');
     }
 
     public function source()

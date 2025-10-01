@@ -1,4 +1,5 @@
-<form class="row g-3 max-h-[90vh] flex flex-col gap-3 overflow-y-auto px-5">
+<form id="addLeadForm" class="row g-3 max-h-[90vh] flex flex-col gap-3 overflow-y-auto px-5">
+    @csrf
     <!-- Title -->
     <h2 class="text-2xl font-semibold text-gray-800">Add Lead Contact Info</h2>
 
@@ -92,7 +93,8 @@
             <span class="text-gray-700 font-medium">Create Deal</span>
         </label>
         <label class="flex items-center gap-2">
-            <input type="checkbox" id="createDeal" class="w-5 h-5 text-purple-600 rounded focus:ring-purple-500">
+            <input type="checkbox" id="auto_convert_lead_to_client" name="auto_convert_lead_to_client"
+                class="w-5 h-5 text-purple-600 rounded focus:ring-purple-500">
             <span class="text-gray-700 font-medium">Auto Convert Lead to Client When Deal Stage is set to win</span>
         </label>
     </div>
@@ -105,21 +107,18 @@
             <!--Deal  Name -->
             <div class="w-full sm:w-1/3">
                 <label class="form-label">Deal Name *</label>
-                <div class="icon-field">
-                    <span class="icon">
-                        <iconify-icon icon="mage:user"></iconify-icon>
-                    </span>
-                    <input type="text" name="deal_name" class="form-control" placeholder="Enter Deal Name">
-                </div>
+                <input type="text" name="deal_name" class="form-control" placeholder="Enter Deal Name">
             </div>
 
             <!-- Pipline -->
             <div class="w-full sm:w-1/3">
-                <label class="form-label">Deal Pipline</label>
-                <select name="pipe_line_id" class="form-select select2">
+                <label class="form-label">Deal Pipeline</label>
+                <select id="pipelineSelect" name="pipe_line_id" class="form-select select2">
                     <option value="">Select</option>
-                     @foreach ($piplines as $p)
-                        <option value="{{ $p->id }}">{{ $p->name }}</option>
+                    @foreach ($piplines as $p)
+                        <option value="{{ $p->id }}" {{ $p->is_default === 'yes' ? 'selected' : '' }}>
+                            {{ $p->name }}
+                        </option>
                     @endforeach
                 </select>
             </div>
@@ -127,21 +126,14 @@
             {{-- Stages --}}
             <div class="w-full sm:w-1/3">
                 <label class="form-label">Deal Stage</label>
-                <select name="deal_stage_id" class="form-select select2">
+                <select id="stageSelect" name="deal_stage_id" class="form-select select2">
                     <option value="">Select</option>
-                    <option>Mr</option>
-                    <option>Mrs</option>
-                    <option>Miss</option>
-                    <option>Dr.</option>
-                    <option>Sir</option>
-                    <option>Madam</option>
+                    {{-- JS will filter and inject correct stages --}}
                 </select>
             </div>
         </div>
 
         <div class="sm:flex gap-3">
-
-
 
             <!-- Deal Value -->
             <div class="w-full sm:w-1/3">
@@ -167,48 +159,41 @@
                 <label class="form-label">Category</label>
                 <select name="deal_category_id" class="form-select select2">
                     <option value="">Select</option>
-                    <option>Mr</option>
-                    <option>Mrs</option>
-                    <option>Miss</option>
-                    <option>Dr.</option>
-                    <option>Sir</option>
-                    <option>Madam</option>
+                    @foreach ($categories as $c)
+                        <option value="{{ $c->id }}">{{ $c->name }}</option>
+                    @endforeach
                 </select>
             </div>
 
         </div>
 
         <div class="sm:flex gap-3">
-
             <!--Deal  Name -->
             <div class="w-full sm:w-1/3">
                 <label class="form-label">Deal Agent</label>
-                <select name="pipe_line_id" class="form-select select2">
+                <select name="deal_agent" class="form-select select2">
                     <option value="">Select</option>
                     @foreach ($dealAgents as $a)
-                        <option value="{{ $a->id }}">{{ $a->name }}</option>
+                        <option value="{{ $a->id }}">{{ $a->aggent->name ?? 'Unknown' }}</option>
                     @endforeach
                 </select>
             </div>
 
             <!-- Pipline -->
-            <div class="w-full sm:w-1/3">
+            {{-- <div class="w-full sm:w-1/3">
                 <label class="form-label">Product</label>
                 <select name="pipe_line_id" class="form-select select2">
                     <option value="">Select</option>
-                    <option>Mr</option>
-                    <option>Mrs</option>
-                    <option>Miss</option>
-                    <option>Dr.</option>
-                    <option>Sir</option>
-                    <option>Madam</option>
+                    @foreach ($products as $p)
+                        <option value="{{ $p->id }}">{{ $p->name }}</option>
+                    @endforeach
                 </select>
-            </div>
+            </div> --}}
 
             {{-- Stages --}}
             <div class="w-full sm:w-1/3">
                 <label class="form-label">Deal Watcher</label>
-                <select name="deal_stage_id" class="form-select select2">
+                <select name="deal_watcher" class="form-select select2">
                     <option value="">Select</option>
                     @foreach ($employees as $e)
                         <option value="{{ $e->id }}">{{ $e->name }}</option>
@@ -232,14 +217,14 @@
             <!-- Name -->
             <div class="w-full sm:w-1/3">
                 <label class="form-label">Company Name *</label>
-                    <input type="text" name="name" class="form-control" placeholder="Enter Lead Name">
+                <input type="text" name="company_name" class="form-control" placeholder="Enter Lead Name">
             </div>
 
 
             <!-- Website -->
             <div class="w-full sm:w-1/3">
                 <label class="form-label">Website *</label>
-                <input type="email" name="website" class="form-control" placeholder="Enter Website URL">
+                <input type="text" name="website" class="form-control" placeholder="Enter Website URL">
             </div>
 
             <!-- Mobile -->
@@ -252,7 +237,8 @@
             <!-- Phone Number -->
             <div class="w-full sm:w-1/3">
                 <label class="form-label">Office Phone Number *</label>
-                <input type="email" name="office_phone_number" class="form-control" placeholder="Enter Email">
+                <input type="tel" name="office_phone_number" class="form-control"
+                    placeholder="Enter Office Number">
             </div>
         </div>
         <div class="sm:flex gap-3">
@@ -260,7 +246,12 @@
             <!-- Country -->
             <div class="w-full sm:w-1/3">
                 <label class="form-label">Country *</label>
-                <input type="text" name="name" class="form-control" placeholder="Enter Lead Name">
+                <select name="country_id" class="form-select select2">
+                    <option value="">Select</option>
+                    @foreach ($countries as $c)
+                        <option value="{{ $c->id }}">{{ $c->name }}</option>
+                    @endforeach
+                </select>
             </div>
 
 
@@ -285,9 +276,9 @@
             </div>
         </div>
         <div class="col-md-12">
-        <label class="form-label">Address</label>
-        <textarea name="address" class="form-control" placeholder="Enter Address" rows="2"></textarea>
-    </div>
+            <label class="form-label">Address</label>
+            <textarea name="address" class="form-control" placeholder="Enter Address" rows="2"></textarea>
+        </div>
     </div>
 
     <!-- Buttons -->
@@ -311,12 +302,54 @@
         } else {
             console.warn('jQuery or Select2 not found — skipping select2 init.');
         }
+
+
+        // Convert PHP stages array into JS
+        const stages = @json($stages);
+
+        const pipelineSelect = document.getElementById('pipelineSelect');
+        const stageSelect = document.getElementById('stageSelect');
+
+        function loadStages(pipelineId) {
+            // Clear old options
+            stageSelect.innerHTML = '<option value="">Select</option>';
+
+            // Filter stages by pipeline
+            const filtered = stages.filter(s => s.lead_pipline_id == pipelineId);
+
+            // Append filtered options
+            filtered.forEach(stage => {
+                const option = document.createElement('option');
+                option.value = stage.id;
+                option.textContent = stage.name;
+
+                // Preselect default stage
+                if (stage.is_default === 'yes') {
+                    option.selected = true;
+                }
+                stageSelect.appendChild(option);
+            });
+
+            // Refresh select2 if active
+            if (window.jQuery && jQuery(stageSelect).data('select2')) {
+                jQuery(stageSelect).trigger('change.select2');
+            }
+        }
+
+        // Load on first page load (default pipeline)
+        if (pipelineSelect.value) {
+            loadStages(pipelineSelect.value);
+        }
+
+        // Reload on pipeline change
+        pipelineSelect.addEventListener('change', function() {
+            loadStages(this.value);
+        });
     });
     // Toggle sections
     document.getElementById("createDeal").addEventListener("change", function() {
         document.getElementById("dealSection").classList.toggle("hidden", !this.checked);
     });
-
     document.getElementById("companyDetail").addEventListener("change", function() {
         document.getElementById("companySection").classList.toggle("hidden", !this.checked);
     });

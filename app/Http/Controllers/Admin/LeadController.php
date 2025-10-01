@@ -3,23 +3,34 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Deal;
 use App\Models\DealStage;
 use App\Models\Lead;
+use App\Models\LeadCompanyDetail;
 use App\Models\LeadPipline;
 use App\Models\LeadSource;
+use DB;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Yajra\DataTables\DataTables;
+use Illuminate\Support\Facades\Validator;
 
 class LeadController extends Controller
 {
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $leads = Lead::with('leadOwner');
+            $leads = Lead::with('leadOwner', 'leadAddedBy');
 
             return DataTables::of($leads)
                 ->addIndexColumn()
+                ->addColumn('lead_added_by_name', function ($row) {
+                    return $row->leadAddedBy?->name ?? '-';
+                })
+                ->addColumn('lead_owner_name', function ($row) {
+                    return $row->leadOwner?->name ?? '-';
+                })
                 ->addColumn('action', function ($row) {
                     return '
                         <button class="btn btn-sm !bg-[#8D35E3] hover:!bg-[#8D35E3]/80 focus:!bg-[#8D35E3]/80 active:!bg-[#8D35E3]/80 dark:!bg-[#8D35E3]/80 dark:hover:!bg-[#8D35E3]/80 dark:focus:!bg-[#8D35E3]/80 dark:active:!bg-[#8D35E3]/80 text-white p-2 rounded editEmployee"
@@ -37,6 +48,116 @@ class LeadController extends Controller
         }
 
         return view('admin.leads.index');
+    }
+
+    public function store(Request $request)
+    {
+        // ✅ Step 1: Validate input
+        $validator = Validator::make($request->all(), [
+            'salutation' => 'required|in:Mr,Mrs,Miss,Dr.,Sir,Madam',
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:leads,email',
+            'lead_source_id' => 'nullable|exists:lead_sources,id',
+            'added_by' => 'nullable|exists:employees,id',
+            'lead_owner' => 'nullable|exists:employees,id',
+
+            // deal validation (only if has_deal)
+            'deal_name' => 'required_if:has_deal,on|string|max:255',
+            'pipe_line_id' => 'required_if:has_deal,on|exists:lead_piplines,id',
+            'deal_stage_id' => 'required_if:has_deal,on|exists:deal_stages,id',
+            'deal_value' => 'required_if:has_deal,on|numeric|min:0',
+            'close_date' => 'required_if:has_deal,on|date',
+            'deal_category_id' => 'required_if:has_deal,on|exists:deal_categories,id',
+            'deal_agent' => 'nullable|exists:deal_agents,id',
+            'deal_watcher' => 'nullable|exists:employees,id',
+
+            // company detail (only if has_company_detail)
+            'company_name' => 'required_if:has_company_detail,on|string|max:255',
+            'website' => 'nullable|string|max:255',
+            'mobile' => 'nullable|string|max:20',
+            'office_phone_number' => 'nullable|string|max:20',
+            'country_id' => 'nullable|exists:countries,id',
+            'state' => 'nullable|string|max:255',
+            'city' => 'nullable|string|max:255',
+            'postal_code' => 'nullable|string|max:20',
+            'address' => 'nullable|string|max:500',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        DB::beginTransaction();
+
+        try {
+            // ✅ Step 2: Create Lead
+            $lead = Lead::create([
+                'salutation' => $request->salutation,
+                'name' => $request->name,
+                'email' => $request->email,
+                'lead_source_id' => $request->lead_source_id,
+                'added_by' => $request->added_by,
+                'lead_owner' => $request->lead_owner,
+                'auto_convert_lead_to_client' => $request->has('auto_convert_lead_to_client') ? 'yes' : 'no',
+            ]);
+
+            // ✅ Step 3: Add company details if needed
+            if ($request->has('has_company_detail')) {
+                LeadCompanyDetail::create([
+                    'lead_id' => $lead->id,
+                    'name' => $request->company_name,
+                    'website' => $request->website,
+                    'mobile' => $request->mobile,
+                    'office_phone_number' => $request->office_phone_number,
+                    'country_id' => $request->country_id,
+                    'state' => $request->state,
+                    'city' => $request->city,
+                    'postal_code' => $request->postal_code,
+                    'address' => $request->address,
+                ]);
+            }
+
+            // ✅ Step 4: Add deal if needed
+            if ($request->has('has_deal')) {
+                Deal::create([
+                    'lead_id' => $lead->id,
+                    'name' => $request->deal_name,
+                    'pipe_line_id' => $request->pipe_line_id,
+                    'deal_stage_id' => $request->deal_stage_id,
+                    'currency_id' => 1, // default currency
+                    'deal_value' => $request->deal_value,
+                    'close_date' => $request->close_date,
+                    'deal_category_id' => $request->deal_category_id,
+                    'deal_agent_id' => $request->deal_agent ?? auth()->id(),
+                    'deal_watcher_id' => $request->deal_watcher,
+                ]);
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Lead created successfully',
+                'data' => $lead,
+            ], 201);
+
+        } catch (\Throwable $e) {
+            DB::rollBack();
+
+            Log::error('Lead creation failed: '.$e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
+                'request' => $request->all(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Something went wrong while creating the lead.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 
     public function addSource(Request $request)

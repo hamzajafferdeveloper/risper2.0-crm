@@ -18,15 +18,16 @@
                 </div>
 
                 <div class="card-body">
-                    <table id="employees-table"
+                    <table id="lead-table"
                         class="border border-neutral-200 dark:border-neutral-600 rounded-lg border-separate">
                         <thead>
                             <tr>
                                 <th>S.L</th>
                                 <th>Name</th>
                                 <th>Email</th>
+                                <th>Added By</th>
+                                <th>Lead Owner</th>
                                 <th>Created At</th>
-                                <th>Profile Pic</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
@@ -48,7 +49,7 @@
                 <button class="closeAddModal text-gray-500 hover:text-gray-700">✕</button>
             </div>
 
-            <x-admin.add-lead-modal />
+            <x-admin.add-lead-form />
         </div>
     </div>
 @endsection
@@ -58,7 +59,7 @@
         let table;
 
         $(function() {
-            table = $('#employees-table').DataTable({
+            table = $('#lead-table').DataTable({
                 processing: true,
                 serverSide: true,
                 ajax: "{{ route('admin.leads.index') }}",
@@ -76,9 +77,14 @@
                         data: 'email',
                         name: 'email'
                     },
+
                     {
-                        data: 'mobile',
-                        name: 'mobile'
+                        data: 'lead_added_by_name',
+                        name: 'leadAddedBy'
+                    },
+                    {
+                        data: 'lead_owner_name',
+                        name: 'leadOwner'
                     },
                     {
                         data: 'created_at',
@@ -125,7 +131,7 @@
             }, 150);
         }
 
-        // ========== Add Employee Modal ========== //
+        // ========== Add Lead Modal ========== //
         $('#openAddLeadModal').on('click', function() {
             openModal('addLeadModal', 'addLeadPanel');
         });
@@ -138,6 +144,34 @@
             if (e.target.id === 'addLeadModal') {
                 closeModal('addLeadModal', 'addLeadPanel');
             }
+        });
+
+
+        $('#addLeadForm').on('submit', function(e) {
+            e.preventDefault();
+
+            let formData = $(this).serialize();
+
+            $.ajax({
+                url: "{{ route('admin.leads.store') }}",
+                type: "POST",
+                data: formData,
+                success: function() {
+                    toastr.success('Lead added successfully!', 'Success');
+                    table.ajax.reload();
+                    $('#addLeadModal').addClass('hidden');
+                    $('#addLeadForm')[0].reset();
+                },
+                error: function(xhr) {
+                    if (xhr.status === 422) {
+                        $.each(xhr.responseJSON.errors, function(key, value) {
+                            toastr.error(value[0], 'Validation Error');
+                        });
+                    } else {
+                        toastr.error('❌ An error occurred while adding the lead.', 'Error');
+                    }
+                }
+            });
         });
     </script>
 @endpush

@@ -10,7 +10,7 @@ class DealAgent extends Model
 
     public function aggent()
     {
-        return $this->belongsTo(Employee::class, 'aggent');
+        return $this->belongsTo(Employee::class, 'aggent', 'id');
     }
 
     public function category()
