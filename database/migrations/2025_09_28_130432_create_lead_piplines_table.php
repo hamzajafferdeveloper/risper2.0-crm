@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('lead_piplines', function (Blueprint $table) {
             $table->id();
+            $table->string('tag_color');
             $table->string('name');
             $table->enum('is_default', ['yes', 'no'])->default('no');
             $table->timestamps();

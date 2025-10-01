@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Country;
+use App\Models\DealStage;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -24,6 +25,18 @@ class DatabaseSeeder extends Seeder
         User::factory()->create([
             'name' => 'Admin User',
             'email' => 'admin@example.com',
+        ]);
+
+        DealStage::factory()->create([
+            'name'=> 'Generated',
+        ]);
+
+        DealStage::factory()->create([
+            'name'=> 'Lost',
+        ]);
+
+        DealStage::factory()->create([
+            'name'=> 'Win',
         ]);
 
         $this->call(CountrySeeder::class);

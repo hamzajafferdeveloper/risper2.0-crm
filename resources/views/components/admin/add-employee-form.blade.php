@@ -65,8 +65,8 @@
             <div class="sm:flex gap-3 w-full">
 
                 <div class="w-full sm:w-1/3">
-                    <label class="form-label">Gender</label>
-                    <select name="gender" class="form-select select2">
+                    <label class="form-label">Gender *</label>
+                    <select name="gender" class="form-select select2" required>
                         <option value="">Select</option>
                         <option value="male">Male</option>
                         <option value="female">Female</option>
@@ -338,7 +338,7 @@
 
     <!-- Submit -->
     <div class="col-12 text-end">
-        <button type="submit" class="btn btn-primary px-4">Save Employee</button>
+        <button type="submit" class="btn btn-primary !bg-[#8D35E3] px-4">Save Employee</button>
     </div>
 </form>
 
@@ -504,163 +504,5 @@
     });
 </script>
 <style>
-    /* small badge styling (Tailwind-like; falls back if tailwind present) */
-    .skill-badge {
-        background: #0d6efd;
-        /* bootstrap primary */
-        color: #fff;
-        padding: 4px 10px;
-        border-radius: 9999px;
-        font-size: 13px;
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        margin-right: 6px;
-        margin-bottom: 6px;
-    }
 
-    .skill-badge .remove-skill {
-        background: transparent;
-        border: none;
-        color: rgba(255, 255, 255, 0.95);
-        font-weight: 700;
-        cursor: pointer;
-        line-height: 1;
-        padding: 0;
-        font-size: 14px;
-    }
-
-    /* shake animation for duplicate */
-    @keyframes shake {
-
-        0%,
-        100% {
-            transform: translateX(0);
-        }
-
-        25% {
-            transform: translateX(-4px);
-        }
-
-        75% {
-            transform: translateX(4px);
-        }
-    }
-
-    .shake {
-        animation: shake 0.35s;
-    }
-
-    .form-control,
-    .form-select {
-        padding-top: 0.4rem;
-        padding-bottom: 0.4rem;
-    }
-
-    .icon-field .icon {
-        top: unset !important;
-        font-size: 17px;
-    }
-
-    .icon-field {
-        display: flex;
-        align-items: center;
-    }
-
-    .peer:checked~.peer-checked\:after\:translate-x-full::after {
-        --tw-translate-x: 48%
-    }
-
-    /* Beautify Select2 dropdown */
-    .select2-container .select2-selection--single,
-    .select2-container .select2-selection--multiple {
-        border: 1px solid #ced4da;
-        border-radius: 8px;
-        padding: 6px 10px;
-        height: auto;
-        box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
-    }
-
-    .select2-container--default .select2-selection--multiple .select2-selection__choice {
-        background: #0d6efd;
-        border-radius: 12px;
-        color: #fff;
-        padding: 3px 8px;
-        margin: 3px 5px 3px 0;
-        font-size: 13px;
-    }
-
-    .select2-container--default .select2-results__option--highlighted {
-        background: #0d6efd;
-        color: #fff;
-    }
-
-    .selection {
-        width: 100%;
-    }
-
-    .select2-container--default .select2-selection--single .select2-selection__arrow {
-        top: 10px;
-    }
-
-    /* Search box inside dropdown */
-    .select2-container--default .select2-search--dropdown .select2-search__field {
-        border: 1px solid #d1d5db;
-        /* Tailwind gray-300 */
-        border-radius: 0.5rem;
-        /* rounded */
-        padding: 6px 10px;
-        font-size: 14px;
-        outline: none;
-    }
-
-    /* Dropdown results box */
-    .select2-container--default .select2-results>.select2-results__options {
-        max-height: 220px;
-        border: 1px solid #e5e7eb;
-        border-radius: 0.5rem;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
-        padding: 4px;
-        font-size: 14px;
-    }
-
-    /* Each option */
-    .select2-container--default .select2-results__option {
-        padding: 8px 12px;
-        border-radius: 0.375rem;
-        /* rounded-md */
-        transition: background 0.2s;
-    }
-
-    /* Hover state */
-    .select2-container--default .select2-results__option--highlighted[aria-selected] {
-        background-color: #2563eb;
-        /* Tailwind blue-600 */
-        color: white;
-    }
-
-    /* Selected option */
-    .select2-container--default .select2-results__option[aria-selected=true] {
-        background-color: #e0f2fe;
-        /* Tailwind blue-100 */
-        color: #1e3a8a;
-    }
-
-    /* The main box (before dropdown opens) */
-    .select2-container--default .select2-selection--single {
-        height: 40px;
-        border-radius: 0.35rem;
-        /* rounded-xl */
-        border: 1px solid #d1d5db;
-        padding: 6px 12px;
-        display: flex;
-        align-items: center;
-        font-size: 15px;
-    }
-
-    /* Placeholder text */
-    .select2-container--default .select2-selection--single .select2-selection__placeholder {
-        color: #9ca3af;
-        /* gray-400 */
-    }
 </style>

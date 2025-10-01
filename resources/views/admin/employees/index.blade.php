@@ -24,10 +24,10 @@
                             <tr>
                                 <th>S.L</th>
                                 <th>Employee ID</th>
+                                <th>Profile Pic</th>
                                 <th>Name</th>
                                 <th>Email</th>
                                 <th>Mobile</th>
-                                <th>Profile Pic</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
@@ -96,6 +96,15 @@
                         name: 'employee_id'
                     },
                     {
+                        data: 'profile_pic',
+                        name: 'profile_pic',
+                        orderable: false,
+                        searchable: false,
+                        render: function(data) {
+                            return `<img src="/storage/${data}" class="w-12 h-12 rounded-xl" />`;
+                        },
+                    },
+                    {
                         data: 'name',
                         name: 'name'
                     },
@@ -106,12 +115,6 @@
                     {
                         data: 'mobile',
                         name: 'mobile'
-                    },
-                    {
-                        data: 'profile_pic',
-                        name: 'profile_pic',
-                        orderable: false,
-                        searchable: false
                     },
                     {
                         data: 'action',

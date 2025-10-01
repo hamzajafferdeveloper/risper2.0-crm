@@ -5,15 +5,24 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Language;
 use Illuminate\Http\Request;
+use Yajra\DataTables\DataTables;
 
 class LanguageController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        if($request->ajax()) {
+            $languages = Language::all();
+            return DataTables::of($languages)
+                ->addIndexColumn()
+                ->rawColumns(['status','action'])
+                ->make(true);
+        }
+
+        return view('admin.settings.languages');
     }
 
     /**
@@ -69,7 +78,7 @@ class LanguageController extends Controller
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'code' => 'required|string|max:10|unique:languages,code,' . $language->id,
+            'code' => 'required|string|max:10|unique:languages,code,'.$language->id,
             'rtl_status' => 'boolean',
             'status' => 'boolean',
         ]);
