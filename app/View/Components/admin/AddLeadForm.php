@@ -40,7 +40,7 @@ class AddLeadForm extends Component
         $this->employees = Employee::all();
         $this->piplines = LeadPipline::all();
         $this->stages = DealStage::all();
-        $this->dealAgents = DealAgent::with('aggent')->get();
+        $this->dealAgents = DealAgent::with('aggentEmployee')->get();
         $this->categories = DealCategory::all();
         $this->countries = Country::all();
         $this->products = [

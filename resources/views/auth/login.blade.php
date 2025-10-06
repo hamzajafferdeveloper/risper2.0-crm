@@ -43,13 +43,16 @@
             </div>
             <span class="text-sm text-red-600 mb-3 block" id="error-password"></span>
 
-            {{-- General error (invalid credentials, etc.) --}}
+            {{-- General error --}}
             <div id="error-general"
                 class="hidden mb-5 rounded-lg bg-red-100 border border-red-300 text-red-700 px-4 py-3 text-sm"></div>
 
             {{-- Submit --}}
-            <button type="submit" class="btn btn-primary w-full py-3 rounded-xl text-white font-semibold">
-                Sign In
+            <button type="submit" id="loginBtn"
+                class="btn btn-primary !bg-[#8D35E3] w-full py-3 rounded-xl text-white font-semibold flex items-center justify-center gap-2">
+                <span class="btn-text">Sign In</span>
+                <span
+                    class="loader hidden w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
             </button>
         </form>
 
@@ -81,24 +84,31 @@
             $("#loginForm").on("submit", function(e) {
                 e.preventDefault();
 
+                const $btn = $("#loginBtn");
+                const $text = $btn.find(".btn-text");
+                const $loader = $btn.find(".loader");
+
+                // Show loading state
+                $btn.prop("disabled", true);
+                $text.text("Signing in...");
+                $loader.removeClass("hidden");
+
                 let formData = $(this).serialize();
 
                 $.ajax({
-                    url: "{{ route('authenticate') }}", // or "/authenticate"
+                    url: "{{ route('authenticate') }}",
                     method: "POST",
                     data: formData,
                     success: function(response) {
                         if (response.success) {
-                            // Redirect to the dashboard or intended page
-                            window.location.href = response.redirect || "{{ route('admin.dashboard') }}";
+                            window.location.href = response.redirect ||
+                                "{{ route('admin.dashboard') }}";
                         } else {
                             $("#errorBox").removeClass("hidden").html(response.message ||
                                 "Login failed.");
                         }
-                        console.log(response);
                     },
                     error: function(xhr) {
-                        // Clear old errors
                         $("#error-email").text("");
                         $("#error-password").text("");
                         $("#error-general").addClass("hidden").text("");
@@ -107,20 +117,21 @@
                         let message = xhr.responseJSON?.message;
 
                         if (errors) {
-                            if (errors.email) {
-                                $("#error-email").text(errors.email[0]);
-                            }
-                            if (errors.password) {
-                                $("#error-password").text(errors.password[0]);
-                            }
+                            if (errors.email) $("#error-email").text(errors.email[0]);
+                            if (errors.password) $("#error-password").text(errors.password[0]);
                         } else if (message) {
                             $("#error-general").removeClass("hidden").text(message);
                         } else {
                             $("#error-general").removeClass("hidden").text(
                                 "Unauthorized request.");
                         }
+                    },
+                    complete: function() {
+                        // Hide loading state
+                        $btn.prop("disabled", false);
+                        $text.text("Sign In");
+                        $loader.addClass("hidden");
                     }
-
                 });
             });
         });

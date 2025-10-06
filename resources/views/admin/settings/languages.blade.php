@@ -40,14 +40,14 @@
                         <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Language
                             Name</label>
                         <input type="text" name="name" id="name"
-                            class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-purple-400 focus:border-purple-500 dark:bg-gray-700 dark:text-gray-200"
+                            class="w-full form-control"
                             placeholder="Enter language name" required>
                     </div>
                     <div class="w-1/2">
                         <label for="code" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Language
                             Code</label>
                         <input type="text" name="code" id="code"
-                            class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-purple-400 focus:border-purple-500 dark:bg-gray-700 dark:text-gray-200"
+                            class="w-full form-control"
                             placeholder="Enter language code" required>
                     </div>
                 </div>
@@ -95,6 +95,10 @@
         let table;
         $(document).ready(function() {
 
+            if ($.fn.DataTable.isDataTable('#languageTable')) {
+                $('#languageTable').DataTable().destroy();
+            }
+
             table = $('#languageTable').DataTable({
                 processing: true,
                 serverSide: true,
@@ -140,12 +144,14 @@
             // Close modal
             $('#closecreateLanguageModal').on('click', function() {
                 $('#createLanguageModal').addClass('hidden');
+                $('#createLanguageForm')[0].reset();
             });
 
             // Close modal on outside click
             $(document).on('click', function(e) {
                 if ($(e.target).is('#createLanguageModal')) {
                     $('#createLanguageModal').addClass('hidden');
+                    $('#createLanguageForm')[0].reset();
                 }
             });
 
@@ -155,8 +161,6 @@
                 e.preventDefault();
 
                 let formData = $(this).serialize();
-
-                console.log(formData);
 
                 $.ajax({
                     url: "{{ route('admin.settings.languages.store') }}",

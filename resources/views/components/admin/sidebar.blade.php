@@ -36,12 +36,12 @@
                     <span>Leads</span>
                 </a>
             </li>
-            <li>
+            {{-- <li>
                 <a href={{ route('admin.deals.index') }}>
                     <iconify-icon icon="fluent-emoji-high-contrast:handshake" class="menu-icon"></iconify-icon>
                     <span>Deals</span>
                 </a>
-            </li>
+            </li> --}}
             <li>
                 <a href="#">
                     <iconify-icon icon="uil:calender" class="menu-icon"></iconify-icon>

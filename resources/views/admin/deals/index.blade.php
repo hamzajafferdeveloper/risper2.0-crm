@@ -58,7 +58,11 @@
     <script>
         let table;
 
-        $(function() {
+        $(document).ready(function() {
+            if ($.fn.DataTable.isDataTable('#deal-table')) {
+                $('#deal-table').DataTable().destroy();
+            }
+
             table = $('#deal-table').DataTable({
                 processing: true,
                 serverSide: true,

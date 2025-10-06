@@ -15,7 +15,6 @@ use Yajra\DataTables\DataTables;
 
 class DealController extends Controller
 {
-
     public function index(Request $request)
     {
         if ($request->ajax()) {
@@ -25,7 +24,7 @@ class DealController extends Controller
                 ->addIndexColumn()
                 ->addColumn('lead_name', fn ($row) => $row->lead?->name ?? '-')
                 ->addColumn('lead_email', fn ($row) => $row->lead?->email ?? '-')
-                ->addColumn('deal_agent_name', fn ($row) => $row->dealAgent?->aggent?->name ?? '-')
+                ->addColumn('deal_agent_name', fn ($row) => $row->dealAgent?->aggentEmployee?->name ?? '-')
                 ->addColumn('deal_watcher_name', fn ($row) => $row->dealWatcher?->name ?? '-')
                 ->rawColumns(['action'])
                 ->make(true);
@@ -33,6 +32,7 @@ class DealController extends Controller
 
         return view('admin.deals.index');
     }
+
     public function store(Request $request)
     {
         // ✅ Step 1: Validate input
@@ -47,7 +47,6 @@ class DealController extends Controller
             'deal_agent' => 'nullable|exists:deal_agents,id',
             'deal_watcher_id' => 'nullable|exists:employees,id',
         ]);
-
 
         if ($validator->fails()) {
             return response()->json([
@@ -73,6 +72,7 @@ class DealController extends Controller
             ]);
 
             DB::commit();
+
             return response()->json([
                 'success' => true,
                 'message' => 'Deal created successfully.',
@@ -101,6 +101,34 @@ class DealController extends Controller
         }
     }
 
+    public function updateCategory(Request $request, $id)
+    {
+        if ($request->ajax()) {
+            $validated = $request->validate([
+                'name' => 'required',
+            ]);
+
+            $deals = DealCategory::where('id', $id)->update($validated);
+
+            return response()->json([
+                'message' => 'Category updated successfully.',
+                'data' => $deals,
+            ], 201);
+        }
+    }
+
+    public function deleteCategory(Request $request, $id)
+    {
+        if ($request->ajax()) {
+            $deals = DealCategory::where('id', $id)->delete();
+
+            return response()->json([
+                'message' => 'Category deleted successfully.',
+                'data' => $deals,
+            ], 201);
+        }
+    }
+
     public function allCategory(Request $request)
     {
         if ($request->ajax()) {
@@ -115,6 +143,21 @@ class DealController extends Controller
         return response()->json([
             'message' => 'No category found',
         ], 201);
+    }
+
+    public function dealAgents(Request $request)
+    {
+        if ($request->ajax()) {
+            $Agent = DealAgent::with('aggentEmployee', 'category')->get();
+
+            return DataTables::of($Agent)
+                ->addIndexColumn()
+                ->addColumn('employee_name', fn ($row) => $row->aggentEmployee?->name ?? '-')
+                ->addColumn('employee_email', fn ($row) => $row->aggentEmployee?->email ?? '-')
+                ->rawColumns(['status', 'action'])
+                ->make(true);
+
+        }
     }
 
     public function storeDealAgent(Request $request)

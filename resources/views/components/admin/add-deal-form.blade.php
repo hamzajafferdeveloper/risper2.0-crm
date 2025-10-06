@@ -67,9 +67,6 @@
                 <label class="form-label">Close Date *</label>
                 <input type="date" name="close_date" class="form-control">
             </div>
-
-
-
         </div>
 
         <div class="sm:flex gap-3">
@@ -79,7 +76,7 @@
                 <select name="deal_agent_id" class="form-select select2">
                     <option value="">Select</option>
                     @foreach ($dealAgents as $a)
-                        <option value="{{ $a->id }}">{{ $a->aggent->name ?? 'Unknown' }}</option>
+                        <option value="{{ $a->id }}">{{ $a->aggentEmployee->name ?? 'Unknown' }}</option>
                     @endforeach
                 </select>
             </div>

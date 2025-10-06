@@ -23,18 +23,32 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
     gap: 10px;
 }
 
-/* .card-body #employees-table_wrapper .row {
+/* First row (length dropdown + search) */
+div.dataTables_wrapper div.row:first-of-type {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding-right: 10px;
-    padding-left: 10px;
     margin-bottom: 10px;
-} */
+}
+
+/* Last row (info + pagination) */
+div.dataTables_wrapper div.row:last-of-type {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.dataTables_length label,
+.dataTables_filter label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
 
 /* small badge styling (Tailwind-like; falls back if tailwind present) */
 .skill-badge {
-    background: #8D35E3 !important;
+    background: #8d35e3 !important;
     /* bootstrap primary */
     color: #fff;
     padding: 4px 10px;
@@ -78,7 +92,6 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
     animation: shake 0.35s;
 }
 
-.form-control,
 .form-select {
     padding-top: 0.4rem;
     padding-bottom: 0.4rem;
@@ -96,7 +109,6 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 
 .peer:checked ~ .peer-checked\:after\:translate-x-full::after {
     --tw-translate-x: 48%;
-
 }
 
 .peer:checked ~ .peer-checked\:bg-primary-600 {
@@ -117,7 +129,7 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 .select2-container--default
     .select2-selection--multiple
     .select2-selection__choice {
-    background: #0d6efd;
+    background: #8d35e3;
     border-radius: 12px;
     color: #fff;
     padding: 3px 8px;
@@ -126,7 +138,7 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 }
 
 .select2-container--default .select2-results__option--highlighted {
-    background: #0d6efd;
+    background: #8c35e373;
     color: #fff;
 }
 
@@ -142,12 +154,20 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 
 /* Search box inside dropdown */
 .select2-container--default .select2-search--dropdown .select2-search__field {
-    border: 1px solid #d1d5db;
+    border: 1px solid #8c35e373;
     /* Tailwind gray-300 */
     border-radius: 0.5rem;
     /* rounded */
     padding: 6px 10px;
     font-size: 14px;
+    outline: none;
+}
+
+.select2-container--default
+    .select2-search--dropdown
+    .select2-search__field:focus {
+    border-color: rgb(141 53 227 / 1); /* solid purple border */
+    box-shadow: 0 0 0 2px rgba(141, 53, 227, 0.25); /* soft purple glow */
     outline: none;
 }
 
@@ -179,27 +199,77 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 
 /* Selected option */
 .select2-container--default .select2-results__option[aria-selected="true"] {
-    background-color: #e0f2fe;
+    background-color: #b67df041;
     /* Tailwind blue-100 */
-    color: #1e3a8a;
+    color: #8d35e3;
 }
 
 /* The main box (before dropdown opens) */
 .select2-container--default .select2-selection--single {
-    height: 40px;
-    border-radius: 0.35rem;
+    height: 46px;
+    border-radius: 0.6rem;
+
+    border: 1px solid rgb(209 213 219 / var(--tw-border-opacity, 1));
+    background-color: rgb(255 255 255 / var(--tw-bg-opacity, 1));
     /* rounded-xl */
     border: 1px solid #d1d5db;
-    padding: 6px 12px;
+    padding: 4px 12px;
     display: flex;
     align-items: center;
     font-size: 15px;
 }
 
+.select2-container--default .select2-selection--single:hover {
+    border-color: rgb(141 53 227 / 0.6);
+}
+
+.select2-container--default .select2-selection--single:focus {
+    border-color: rgb(141 53 227 / 1); /* solid purple border */
+    box-shadow: 0 0 0 2px rgba(141, 53, 227, 0.25); /* soft purple glow */
+    outline: none;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__clear {
+    margin-right: 0px !important;
+}
 /* Placeholder text */
 .select2-container--default
     .select2-selection--single
     .select2-selection__placeholder {
     color: #9ca3af;
     /* gray-400 */
+}
+
+td.dataTables_empty {
+    text-align: center;
+}
+
+.swal-confirm-btn {
+    background-color: #8D35E3 !important;
+    color: white !important;
+    border: none !important;
+    padding: 8px 20px !important;
+    border-radius: 6px !important;
+    font-weight: 500 !important;
+    transition: background-color 0.2s ease;
+}
+.swal-confirm-btn:hover {
+    background-color: #7329bc !important;
+}
+
+.swal-cancel-btn {
+    background-color: #e5e5e5 !important;
+    color: #333 !important;
+    border: none !important;
+    padding: 8px 20px !important;
+    border-radius: 6px !important;
+    font-weight: 500 !important;
+    transition: background-color 0.2s ease;
+}
+.swal-cancel-btn:hover {
+    background-color: #d4d4d4 !important;
+}
+
+.swal2-actions {
+    gap: 10px !important;
 }

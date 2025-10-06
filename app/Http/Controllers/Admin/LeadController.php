@@ -13,8 +13,8 @@ use DB;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use Yajra\DataTables\DataTables;
 use Illuminate\Support\Facades\Validator;
+use Yajra\DataTables\DataTables;
 
 class LeadController extends Controller
 {
@@ -62,19 +62,19 @@ class LeadController extends Controller
             'lead_owner' => 'nullable|exists:employees,id',
 
             // deal validation (only if has_deal)
-            'deal_name' => 'required_if:has_deal,on|string|max:255',
-            'pipe_line_id' => 'required_if:has_deal,on|exists:lead_piplines,id',
-            'deal_stage_id' => 'required_if:has_deal,on|exists:deal_stages,id',
-            'deal_value' => 'required_if:has_deal,on|numeric|min:0',
-            'close_date' => 'required_if:has_deal,on|date',
-            'deal_category_id' => 'required_if:has_deal,on|exists:deal_categories,id',
+            'deal_name' => 'nullable|string|max:255',
+            'pipe_line_id' => 'nullable|exists:lead_piplines,id',
+            'deal_stage_id' => 'nullable|exists:deal_stages,id',
+            'deal_value' => 'nullable|numeric|min:0',
+            'close_date' => 'nullable|date',
+            'deal_category_id' => 'nullable|exists:deal_categories,id',
             'deal_agent' => 'nullable|exists:deal_agents,id',
             'deal_watcher' => 'nullable|exists:employees,id',
 
             // company detail (only if has_company_detail)
             'company_name' => 'required_if:has_company_detail,on|string|max:255',
             'website' => 'nullable|string|max:255',
-            'mobile' => 'nullable|string|max:20',
+            'mobile' => 'required_if:has_company_detail,on|string|max:20',
             'office_phone_number' => 'nullable|string|max:20',
             'country_id' => 'nullable|exists:countries,id',
             'state' => 'nullable|string|max:255',
@@ -177,10 +177,38 @@ class LeadController extends Controller
         }
     }
 
+    public function updateSource(Request $request, $id)
+    {
+        if ($request->ajax()) {
+            $validated = $request->validate([
+                'name' => 'required',
+            ]);
+
+            $deals = LeadSource::where('id', $id)->update($validated);
+
+            return response()->json([
+                'message' => 'Category updated successfully.',
+                'data' => $deals,
+            ], 201);
+        }
+    }
+
+    public function deleteSource(Request $request, $id)
+    {
+        if ($request->ajax()) {
+            $deals = LeadSource::where('id', $id)->delete();
+
+            return response()->json([
+                'message' => 'Category deleted successfully.',
+                'data' => $deals,
+            ], 201);
+        }
+    }
+
     public function allSource(Request $request)
     {
         if ($request->ajax()) {
-            $source = LeadSource::all();
+            $source = LeadSource::orderBy('id', 'desc');
 
             return DataTables::of($source)
                 ->addIndexColumn()

@@ -36,34 +36,13 @@ class SettingsController extends Controller
         return view('admin.settings.departments');
     }
 
-    public function leadSource()
-    {
-        return view('admin.settings.lead-source');
+    public function leads(){
+        return view('admin.settings.lead');
     }
 
     public function leadPipline()
     {
         return view('admin.settings.lead-pipline');
-    }
-
-    public function dealCategories()
-    {
-        return view('admin.settings.deal-category');
-    }
-
-    public function dealAgents(Request $request)
-    {
-        if ($request->ajax()) {
-            $Agent = DealAgent::with('aggent', 'category')->get();
-
-            return DataTables::of($Agent)
-                ->addIndexColumn()
-                ->rawColumns(['status', 'action'])
-                ->make(true);
-
-        }
-
-        return view('admin.settings.deal-agent');
     }
 
     public function employees()

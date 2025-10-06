@@ -8,7 +8,7 @@ class DealAgent extends Model
 {
     protected $fillable = ['aggent', 'deal_category_id'];
 
-    public function aggent()
+    public function aggentEmployee()
     {
         return $this->belongsTo(Employee::class, 'aggent', 'id');
     }

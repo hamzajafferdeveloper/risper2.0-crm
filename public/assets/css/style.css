@@ -1633,17 +1633,33 @@ input:checked + .toggle-bg{
   background-color: rgb(75 85 99 / var(--tw-bg-opacity));
 }
 
-.form-control{
+.form-control {
   width: 100%;
   border-radius: 0.5rem;
+  border: 1px solid rgb(209 213 219 / var(--tw-border-opacity, 1));
+  background-color: rgb(255 255 255 / var(--tw-bg-opacity, 1));
+  padding: 0.625rem 1.25rem;
+  transition: all 0.2s ease;
+  outline: none; /* remove browser default blue outline */
+}
+
+.form-control:hover {
+  border-color: rgb(141 53 227 / 0.6); /* subtle purple on hover */
+}
+
+.form-select:hover {
+  border-color: rgb(141 53 227 / 1); /* stronger purple for select hover */
+}
+
+.form-control:focus {
+  border-color: rgb(141 53 227 / 1); /* solid purple border */
+  box-shadow: 0 0 0 2px rgba(141, 53, 227, 0.25); /* soft purple glow */
+  outline: none; /* ensure no blue outline */
+}
+
+.form-select:focus {
   --tw-border-opacity: 1;
-  border-color: rgb(209 213 219 / var(--tw-border-opacity));
-  --tw-bg-opacity: 1;
-  background-color: rgb(255 255 255 / var(--tw-bg-opacity));
-  padding-left: 1.25rem;
-  padding-right: 1.25rem;
-  padding-top: 0.625rem;
-  padding-bottom: 0.625rem;
+  border-color: rgb(141 53 227 / var(--tw-border-opacity));
 }
 
 :is(.dark .form-control){

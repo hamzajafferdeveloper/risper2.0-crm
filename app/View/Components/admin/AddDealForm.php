@@ -35,7 +35,7 @@ class AddDealForm extends Component
         $this->leads = Lead::all();
         $this->piplines = LeadPipline::all();
         $this->stages = DealStage::all();
-        $this->dealAgents = DealAgent::with('aggent')->get();
+        $this->dealAgents = DealAgent::with('aggentEmployee')->get();
         $this->categories = DealCategory::all();
     }
 

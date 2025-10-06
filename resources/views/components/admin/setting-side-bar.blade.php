@@ -12,14 +12,7 @@
             ['name' => 'Languages', 'route' => 'admin.settings.languages'],
             ['name' => 'Employees Designation', 'route' => 'admin.settings.employees-designation'],
             ['name' => 'Employment Types', 'route' => 'admin.settings.employment-types'],
-
-            ['name' => 'Leads Source', 'route' => 'admin.settings.lead-source'],
-
-            ['name' => 'Leads Pipline', 'route' => 'admin.settings.lead-pipline'],
-
-            ['name' => 'Deal Category', 'route' => 'admin.settings.deal-categories'],
-
-            ['name' => 'Deal Agent', 'route' => 'admin.settings.deal-agents'],
+            ['name' => 'Lead', 'route' => 'admin.settings.leads'],
         ];
         $currentRoute = Route::currentRouteName();
     @endphp

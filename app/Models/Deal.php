@@ -26,7 +26,7 @@ class Deal extends Model
 
     public function dealAgent()
     {
-        return $this->belongsTo(DealAgent::class, 'deal_agent_id', 'id')->with('aggent');
+        return $this->belongsTo(DealAgent::class, 'deal_agent_id', 'id')->with('aggentEmployee');
     }
 
     public function dealsCategory()

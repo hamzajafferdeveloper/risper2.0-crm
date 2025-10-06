@@ -58,7 +58,11 @@
     <script>
         let table;
 
-        $(function() {
+        $(document).ready(function() {
+            if ($.fn.DataTable.isDataTable('#lead-table')) {
+                $('#lead-table').DataTable().destroy();
+            }
+
             table = $('#lead-table').DataTable({
                 processing: true,
                 serverSide: true,
@@ -80,11 +84,11 @@
 
                     {
                         data: 'lead_added_by_name',
-                        name: 'leadAddedBy'
+                        name: 'lead_added_by_name'
                     },
                     {
                         data: 'lead_owner_name',
-                        name: 'leadOwner'
+                        name: 'lead_owner_name'
                     },
                     {
                         data: 'created_at',
@@ -112,65 +116,90 @@
                     }
                 }
             });
-        });
 
-        // =================== Modal Controls =================== //
-        // Utility: open modal
-        function openModal(modalId, panelId) {
-            $(`#${modalId}`).removeClass('hidden');
-            setTimeout(() => {
-                $(`#${panelId}`).removeClass('translate-x-full');
-            }, 10);
-        }
-
-        // Utility: close modal
-        function closeModal(modalId, panelId) {
-            $(`#${panelId}`).addClass('translate-x-full');
-            setTimeout(() => {
-                $(`#${modalId}`).addClass('hidden');
-            }, 150);
-        }
-
-        // ========== Add Lead Modal ========== //
-        $('#openAddLeadModal').on('click', function() {
-            openModal('addLeadModal', 'addLeadPanel');
-        });
-
-        $('.closeAddModal').on('click', function() {
-            closeModal('addLeadModal', 'addLeadPanel');
-        });
-
-        $('#addLeadModal').on('click', function(e) {
-            if (e.target.id === 'addLeadModal') {
-                closeModal('addLeadModal', 'addLeadPanel');
+            // =================== Modal Controls =================== //
+            // Utility: open modal
+            function openModal(modalId, panelId) {
+                $(`#${modalId}`).removeClass('hidden');
+                setTimeout(() => {
+                    $(`#${panelId}`).removeClass('translate-x-full');
+                }, 10);
             }
-        });
 
+            // Utility: close modal
+            function closeModal(modalId, panelId) {
+                $(`#${panelId}`).addClass('translate-x-full');
+                setTimeout(() => {
+                    $(`#${modalId}`).addClass('hidden');
+                }, 150);
+            }
 
-        $('#addLeadForm').on('submit', function(e) {
-            e.preventDefault();
+            // ========== Add Lead Modal ========== //
+            $('#openAddLeadModal').on('click', function() {
+                openModal('addLeadModal', 'addLeadPanel');
+            });
 
-            let formData = $(this).serialize();
+            $('.closeAddModal').on('click', function() {
+                closeModal('addLeadModal', 'addLeadPanel');
+            });
 
-            $.ajax({
-                url: "{{ route('admin.leads.store') }}",
-                type: "POST",
-                data: formData,
-                success: function() {
-                    toastr.success('Lead added successfully!', 'Success');
-                    table.ajax.reload();
-                    $('#addLeadModal').addClass('hidden');
-                    $('#addLeadForm')[0].reset();
-                },
-                error: function(xhr) {
-                    if (xhr.status === 422) {
-                        $.each(xhr.responseJSON.errors, function(key, value) {
-                            toastr.error(value[0], 'Validation Error');
-                        });
-                    } else {
-                        toastr.error('❌ An error occurred while adding the lead.', 'Error');
-                    }
+            $('#addLeadModal').on('click', function(e) {
+                if (e.target.id === 'addLeadModal') {
+                    closeModal('addLeadModal', 'addLeadPanel');
                 }
+            });
+
+
+            let actionType = "save"; // default
+
+            // Detect which button is clicked
+            $('#addLeadForm button[type="submit"], #addLeadForm button.save-add-more').on('click', function() {
+                if ($(this).hasClass('save-add-more')) {
+                    actionType = "save_add_more";
+                } else {
+                    actionType = "save";
+                }
+            });
+
+            $('#addLeadForm').on('submit', function(e) {
+                e.preventDefault();
+
+                let formData = $(this).serialize();
+
+                $.ajax({
+                    url: "{{ route('admin.leads.store') }}",
+                    type: "POST",
+                    data: formData,
+                    success: function() {
+                        toastr.success('✅ Lead added successfully!', 'Success');
+                        table.ajax.reload();
+
+                        if (actionType === "save") {
+                            // Close modal and reset
+                            $('#addLeadModal').addClass('hidden');
+                            $('#addLeadForm')[0].reset();
+                        } else if (actionType === "save_add_more") {
+                            // Just reset form, keep modal open
+                            $('#addLeadForm')[0].reset();
+                            // Re-init select2 after reset
+                            if (window.jQuery && typeof jQuery.fn.select2 === 'function') {
+                                jQuery('.select2').val('').trigger('change');
+                            }
+                        }
+
+                        // Reset action type back
+                        actionType = "save";
+                    },
+                    error: function(xhr) {
+                        if (xhr.status === 422) {
+                            $.each(xhr.responseJSON.errors, function(key, value) {
+                                toastr.error(value[0], 'Validation Error');
+                            });
+                        } else {
+                            toastr.error('❌ An error occurred while adding the lead.', 'Error');
+                        }
+                    }
+                });
             });
         });
     </script>

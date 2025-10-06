@@ -31,11 +31,11 @@ class EmployeeController extends Controller
                 ->addColumn('action', function ($row) {
                     return '
                         <button class="btn btn-sm !bg-[#8D35E3] hover:!bg-[#8D35E3]/80 focus:!bg-[#8D35E3]/80 active:!bg-[#8D35E3]/80 dark:!bg-[#8D35E3]/80 dark:hover:!bg-[#8D35E3]/80 dark:focus:!bg-[#8D35E3]/80 dark:active:!bg-[#8D35E3]/80 text-white p-2 rounded editEmployee"
-                                data-id="' . $row->id . '" title="Edit">
+                                data-id="'.$row->id.'" title="Edit">
                             <iconify-icon icon="mdi:pencil" class="text-lg"></iconify-icon>
                         </button>
 
-                        <button data-id="' . $row->id . '" class="btn btn-sm !bg-red-500 hover:!bg-red-500/80 focus:!bg-red-500/80 active:!bg-red-500/80 dark:!bg-red-500/80 dark:hover:!bg-red-500/80 dark:focus:!bg-red-500/80 dark:active:!bg-red-500/80 text-white p-2 rounded deleteEmployee" title="Delete">
+                        <button data-id="'.$row->id.'" class="btn btn-sm !bg-red-500 hover:!bg-red-500/80 focus:!bg-red-500/80 active:!bg-red-500/80 dark:!bg-red-500/80 dark:hover:!bg-red-500/80 dark:focus:!bg-red-500/80 dark:active:!bg-red-500/80 text-white p-2 rounded deleteEmployee" title="Delete">
                             <iconify-icon icon="mage:trash" class="text-lg"></iconify-icon>
                         </button>
                     ';
@@ -104,7 +104,7 @@ class EmployeeController extends Controller
             // ✅ Handle profile picture upload
             if ($request->hasFile('profile_pic')) {
                 $file = $request->file('profile_pic');
-                $uniqueName = Str::uuid()->toString() . '.' . $file->getClientOriginalExtension();
+                $uniqueName = Str::uuid()->toString().'.'.$file->getClientOriginalExtension();
                 $validated['profile_pic'] = $file->storeAs('employees', $uniqueName, 'public');
             }
 
@@ -122,17 +122,16 @@ class EmployeeController extends Controller
             ], 201);
 
         } catch (QueryException $e) {
-            Log::error('Database error while creating employee: ' . $e->getMessage());
+            Log::error('Database error while creating employee: '.$e->getMessage());
 
             return response()->json(['error' => 'Database error occurred.'], 500);
 
         } catch (Exception $e) {
-            Log::error('Error while creating employee: ' . $e->getMessage());
+            Log::error('Error while creating employee: '.$e->getMessage());
 
             return response()->json(['error' => 'An unexpected error occurred.'], 500);
         }
     }
-
 
     public function show($id)
     {
@@ -150,10 +149,10 @@ class EmployeeController extends Controller
             $employee = Employee::findOrFail($id);
 
             $validated = $request->validate([
-                'employee_id' => 'required|string|max:50|unique:employees,employee_id,' . $employee->id,
+                'employee_id' => 'required|string|max:50|unique:employees,employee_id,'.$employee->id,
                 'salutation' => 'in:Mr,Mrs,Miss,Dr.,Sir,Madam',
                 'name' => 'required|string|max:255',
-                'email' => 'required|email|unique:employees,email,' . $employee->id,
+                'email' => 'required|email|unique:employees,email,'.$employee->id,
                 'profile_pic' => 'nullable|image|max:2048',
                 'password' => 'nullable|string|min:8',
                 'designation_id' => 'nullable|exists:employee_designations,id',
@@ -163,7 +162,7 @@ class EmployeeController extends Controller
                 'gender' => 'in:male,female,other',
                 'joining_date' => 'required|date',
                 'date_of_birth' => 'nullable|date',
-                'reporting_to' => 'nullable|exists:employees,id|not_in:' . $employee->id,
+                'reporting_to' => 'nullable|exists:employees,id|not_in:'.$employee->id,
                 'language_id' => 'nullable|exists:languages,id',
                 'address' => 'nullable|string|max:500',
                 'about' => 'nullable|string',
@@ -182,7 +181,7 @@ class EmployeeController extends Controller
             ]);
 
             // Hash new password if provided
-            if (!empty($validated['password'])) {
+            if (! empty($validated['password'])) {
                 $validated['password'] = Hash::make($validated['password']);
             } else {
                 unset($validated['password']);
@@ -197,7 +196,7 @@ class EmployeeController extends Controller
 
                 // Save new file with unique name
                 $file = $request->file('profile_pic');
-                $uniqueName = Str::uuid()->toString() . '.' . $file->getClientOriginalExtension();
+                $uniqueName = Str::uuid()->toString().'.'.$file->getClientOriginalExtension();
                 $validated['profile_pic'] = $file->storeAs('employees', $uniqueName, 'public');
             }
 
@@ -209,12 +208,12 @@ class EmployeeController extends Controller
             ], 200);
 
         } catch (QueryException $e) {
-            Log::error('Database error while updating employee: ' . $e->getMessage());
+            Log::error('Database error while updating employee: '.$e->getMessage());
 
             return response()->json(['error' => 'Database error occurred.'], 500);
 
         } catch (Exception $e) {
-            Log::error('Error while updating employee: ' . $e->getMessage());
+            Log::error('Error while updating employee: '.$e->getMessage());
 
             return response()->json(['error' => 'An unexpected error occurred.'], 500);
         }
@@ -237,12 +236,12 @@ class EmployeeController extends Controller
             ], 200);
 
         } catch (QueryException $e) {
-            Log::error('Database error while deleting employee: ' . $e->getMessage());
+            Log::error('Database error while deleting employee: '.$e->getMessage());
 
             return response()->json(['error' => 'Database error occurred.'], 500);
 
         } catch (Exception $e) {
-            Log::error('Error while deleting employee: ' . $e->getMessage());
+            Log::error('Error while deleting employee: '.$e->getMessage());
 
             return response()->json(['error' => 'An unexpected error occurred.'], 500);
         }

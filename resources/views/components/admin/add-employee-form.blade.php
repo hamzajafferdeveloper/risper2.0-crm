@@ -211,65 +211,69 @@
         <div class="flex-grow border-t border-neutral-300 dark:border-neutral-600"></div>
     </div>
 
-    <div class="sm:flex gap-3">
-        <div class="flex w-full sm:w-1/3 gap-3">
-            <!-- Login Allowed -->
-            <div>
-                <label class="form-label">Login Allowed</label>
-                <label class="inline-flex items-center cursor-pointer">
-                    <input type="checkbox" name="login_allowed" class="sr-only peer toggle-input" checked>
-                    <span
-                        class="relative w-11 h-6 bg-gray-400 peer-focus:outline-none rounded-full peer dark:bg-gray-500
+    <div class="sm:flex items-center gap-5">
+        <div class="w-full sm:w-1/2">
+            <label class="form-label">Permissions</label>
+            <div class="flex w-full items-center gap-3">
+                <!-- Login Allowed -->
+                <div class="flex items-center gap-3 w-1/2">
+                    <label class="form-label" style="margin-bottom: unset !important">Login Allowed</label>
+                    <label class="inline-flex items-center cursor-pointer">
+                        <input type="checkbox" name="login_allowed" class="sr-only peer toggle-input" checked>
+                        <span
+                            class="relative w-11 h-6 bg-gray-400 peer-focus:outline-none rounded-full peer dark:bg-gray-500
                        peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full
                        peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px]
                        after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full
                        after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary-600">
-                    </span>
-                    <span class="line-height-1 font-medium ms-3 toggle-label text-md text-gray-600 dark:text-gray-300">
-                        Yes
-                    </span>
-                </label>
-            </div>
+                        </span>
+                        <span
+                            class="line-height-1 font-medium ms-3 toggle-label text-md text-gray-600 dark:text-gray-300">
+                            Yes
+                        </span>
+                    </label>
+                </div>
 
-            <!-- Email Notifications -->
-            <div>
-                <label class="form-label">Receive Email Notifications</label>
-                <label class="inline-flex items-center cursor-pointer">
-                    <input type="checkbox" name="receive_email_notification" class="sr-only peer toggle-input"
-                        checked>
-                    <span
-                        class="relative w-11 h-6 bg-gray-400 peer-focus:outline-none rounded-full peer dark:bg-gray-500
+                <!-- Email Notifications -->
+                <div class="flex items-center gap-3 w-1/2">
+                    <label class="form-label" style="margin-bottom: unset !important">Receive Email
+                        Notifications</label>
+                    <label class="inline-flex items-center cursor-pointer">
+                        <input type="checkbox" name="receive_email_notification" class="sr-only peer toggle-input"
+                            checked>
+                        <span
+                            class="relative w-11 h-6 bg-gray-400 peer-focus:outline-none rounded-full peer dark:bg-gray-500
                        peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full
                        peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px]
                        after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full
                        after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary-600">
-                    </span>
-                    <span class="line-height-1 font-medium ms-3 toggle-label text-md text-gray-600 dark:text-gray-300">
-                        Yes
-                    </span>
-                </label>
+                        </span>
+                        <span
+                            class="line-height-1 font-medium ms-3 toggle-label text-md text-gray-600 dark:text-gray-300">
+                            Yes
+                        </span>
+                    </label>
+                </div>
             </div>
         </div>
         <!-- Slack ID -->
-        <div class="w-full sm:w-1/3">
+        {{-- <div class="w-full sm:w-1/3">
             <label class="form-label">Slack Member ID</label>
             <div class="flex">
                 <span
                     class="inline-flex items-center px-3 border rounded-e-0 border-e-0 rounded-s-md border-neutral-200 dark:border-neutral-600">
-                    {{-- <iconify-icon icon="mynaui:envelope"></iconify-icon> --}}
                     @
                 </span>
                 <input type="text" name="slack_member_id"
                     class="form-control grow rounded-ss-none rounded-es-none" placeholder="info@gmail.com">
             </div>
-        </div>
+        </div> --}}
 
-        <div class="w-full sm:w-1/3">
+        <div class="w-full sm:w-1/2">
             <label class="form-label">Hourly Rate</label>
             <div class="flex">
                 <span
                     class="inline-flex items-center px-3 border rounded-e-0 border-e-0 rounded-s-md border-neutral-200 dark:border-neutral-600">
-                    {{-- <iconify-icon icon="mynaui:envelope"></iconify-icon> --}}
                     $
                 </span>
                 <input type="number" name="hourly_rate" class="form-control grow rounded-ss-none rounded-es-none"
