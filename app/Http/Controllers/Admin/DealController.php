@@ -22,10 +22,10 @@ class DealController extends Controller
 
             return DataTables::of($deals)
                 ->addIndexColumn()
-                ->addColumn('lead_name', fn ($row) => $row->lead?->name ?? '-')
-                ->addColumn('lead_email', fn ($row) => $row->lead?->email ?? '-')
-                ->addColumn('deal_agent_name', fn ($row) => $row->dealAgent?->aggentEmployee?->name ?? '-')
-                ->addColumn('deal_watcher_name', fn ($row) => $row->dealWatcher?->name ?? '-')
+                ->addColumn('lead_name', fn($row) => $row->lead?->name ?? '-')
+                ->addColumn('lead_email', fn($row) => $row->lead?->email ?? '-')
+                ->addColumn('deal_agent_name', fn($row) => $row->dealAgent?->aggentEmployee?->name ?? '-')
+                ->addColumn('deal_watcher_name', fn($row) => $row->dealWatcher?->name ?? '-')
                 ->rawColumns(['action'])
                 ->make(true);
         }
@@ -152,8 +152,8 @@ class DealController extends Controller
 
             return DataTables::of($Agent)
                 ->addIndexColumn()
-                ->addColumn('employee_name', fn ($row) => $row->aggentEmployee?->name ?? '-')
-                ->addColumn('employee_email', fn ($row) => $row->aggentEmployee?->email ?? '-')
+                ->addColumn('employee_name', fn($row) => $row->aggentEmployee?->name ?? '-')
+                ->addColumn('employee_email', fn($row) => $row->aggentEmployee?->email ?? '-')
                 ->rawColumns(['status', 'action'])
                 ->make(true);
 
@@ -176,4 +176,50 @@ class DealController extends Controller
             ], 201);
         }
     }
+
+    public function editdealAgent(string $id)
+    {
+        $deal_agent = DealAgent::with(['aggentEmployee', 'category'])->findOrFail($id);
+
+        return response()->json([
+            'id' => $deal_agent->id,
+            'employee_id' => $deal_agent->aggent,
+            'employee_name' => $deal_agent->aggentEmployee->name ?? 'N/A',
+            'deal_category_id' => $deal_agent->deal_category_id,
+            'category_name' => $deal_agent->category->name ?? 'N/A',
+        ]);
+    }
+
+    public function updateDealAgent(Request $request, string $id)
+    {
+        // dd($request->all());
+        if ($request->ajax()) {
+            $validated = $request->validate([
+                'employee_id' => 'required|exists:employees,id',
+                'deal_category_id' => 'required|exists:deal_categories,id',
+            ]);
+
+            $dealAgent = DealAgent::findOrFail($id);
+            $dealAgent->update([
+                'aggent' => $validated['employee_id'],
+                'deal_category_id' => $validated['deal_category_id'],
+            ]);
+
+            return response()->json([
+                'message' => 'Deal Agent updated successfully.',
+                'data' => $dealAgent,
+            ]);
+        }
+    }
+
+    public function deleteDealAgent(string $id)
+    {
+        $dealAgent = DealAgent::findOrFail($id);
+        $dealAgent->delete();
+
+        return response()->json([
+            'message' => 'Deal Agent deleted successfully.',
+        ]);
+    }
+
 }

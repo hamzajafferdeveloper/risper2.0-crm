@@ -49,7 +49,7 @@ class LeadController extends Controller
 
         return view('admin.leads.index');
     }
-
+ 
     public function store(Request $request)
     {
         // ✅ Step 1: Validate input
@@ -259,7 +259,6 @@ class LeadController extends Controller
         try {
             if ($request->ajax()) {
                 $validated = $request->validate([
-                    'lead_pipline_id' => 'required|exists:lead_piplines,id',
                     'tag_color' => 'required',
                     'name' => 'required',
                 ]);

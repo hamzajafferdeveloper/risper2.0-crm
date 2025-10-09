@@ -7,7 +7,7 @@ use App\Http\Controllers\Admin\LeadController;
 use App\Http\Controllers\Admin\SettingsController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('employee/get-dropdown-data', [EmployeeController::class,'getEditDropdown'])->name('employee.get-dropdown');
+Route::get('employee/get-dropdown-data', [EmployeeController::class, 'getEditDropdown'])->name('employee.get-dropdown');
 
 
 Route::prefix('admin')->middleware('isAdmin')->name('admin.')->group(function () {
@@ -48,12 +48,18 @@ Route::prefix('admin')->middleware('isAdmin')->name('admin.')->group(function ()
         Route::get('/departments', [SettingsController::class, 'departments'])->name('departments');
         Route::get('/leads', [SettingsController::class, 'leads'])->name('leads');
         Route::get('/languages', [LanguageController::class, 'index'])->name('languages');
-        Route::get('lead-pipline', [SettingsController::class, 'leadPipline'])->name('lead-pipline');
-        Route::get('/deal-agents', [DealController::class, 'dealAgents'])->name('deal-agents');
+        Route::get('/lead-pipline', [SettingsController::class, 'leadPipline'])->name('lead-pipline');
         Route::get('/employees', [SettingsController::class, 'employees'])->name('employees');
 
         Route::get('/all-lead-pipline', [LeadController::class, 'allLeadPipline'])->name('lead-pipline.all');
         Route::get('/all-deal-stages-by-piplines', [LeadController::class, 'dealStages'])->name('deal-stages.byPipeline');
+
+        Route::prefix('deal-agents')->group(function () {
+            Route::get('/', [DealController::class, 'dealAgents'])->name('deal-agents');
+            Route::get('/{id}/edit', [DealController::class, 'editdealAgent']);
+            Route::put('{id}', [DealController::class, 'updateDealAgent'])->name('deal-agents.update');
+            Route::delete('{id}', [DealController::class, 'deleteDealAgent'])->name('deal-agents.delete');
+        });
 
         Route::prefix('language')->name('languages.')->group(function () {
             Route::post('all', [LanguageController::class, 'store'])->name('store');
