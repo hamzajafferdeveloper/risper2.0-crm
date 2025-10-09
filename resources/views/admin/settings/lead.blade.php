@@ -25,8 +25,7 @@
             </div>
 
             <div class="tab-pane hidden" data-tab="1">
-                <h2 class="text-xl font-semibold mb-2">Lead Stages</h2>
-                <p>Set and edit your lead stages here.</p>
+                @include("admin.settings.partials.lead-stages")
             </div>
 
             <div class="tab-pane hidden" data-tab="2">
@@ -45,6 +44,7 @@
         let sourceTable;
         let agentTable;
         let categoryTable;
+        let stageTable;
 
         function confirmDelete(action) {
             Swal.fire({
@@ -129,11 +129,11 @@
                     data: null,
                     render: function (data) {
                         return `
-                                                        <div class="flex justify-end gap-2">
-                                                            <button class="editSource !bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-xs" data-id="${data.id}" data-name="${data.name}">Edit</button>
-                                                            <button class="deleteSource !bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-xs" data-id="${data.id}">Delete</button>
-                                                        </div>
-                                                    `;
+                                                            <div class="flex justify-end gap-2">
+                                                                <button class="editSource !bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-xs" data-id="${data.id}" data-name="${data.name}">Edit</button>
+                                                                <button class="deleteSource !bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-xs" data-id="${data.id}">Delete</button>
+                                                            </div>
+                                                        `;
                     },
                     orderable: false,
                     searchable: false
@@ -249,6 +249,160 @@
             });
         });
 
+        $(document).ready(function () {
+
+            if ($.fn.DataTable.isDataTable('#stageTable')) {
+                $('#stageTable').DataTable().destroy();
+            }
+
+            stageTable = $('#stageTable').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: "{{ route('admin.deal-stages.all') }}",
+                columns: [{
+                    data: 'id',
+                    name: 'id'
+                },
+                {
+                    data: 'name',
+                    name: 'name'
+                },
+                {
+                    data: 'tag_color',
+                    name: 'tag_color',
+                    render: function (data) {
+                        return `
+                             <div class="flex justify-center"><span class="w-6 h-6 rounded-full" style="background-color:${data};"></span></div>
+                        `;
+                    }
+                },
+                
+                {
+                    data: null,
+                    render: function (data) {
+                        return `
+                                                            <div class="flex justify-end gap-2">
+                                                                <button class="editStage !bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-xs" data-id="${data.id}" data-name="${data.name}">Edit</button>
+                                                                <button class="deleteStage !bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-xs" data-id="${data.id}">Delete</button>
+                                                            </div>
+                                                        `;
+                    },
+                    orderable: false,
+                    searchable: false
+                },
+                ],
+            });
+
+            // ======================| Modal States| ======================== //
+            // Open modal
+            $('#opencreateStageModal').on('click', function () {
+                $('#createStageModal').removeClass('hidden');
+            });
+
+            // Close modal
+            $('#closecreateStageModal').on('click', function () {
+                $('#createStageModal').addClass('hidden');
+            });
+
+            // Close modal on outside click
+            $(document).on('click', function (e) {
+                if ($(e.target).is('#createStageModal')) {
+                    $('#createStageModal').addClass('hidden');
+                }
+            });
+
+            // ====================| Forms States |============================ //
+
+            $('#createStageForm').on('submit', function (e) {
+                e.preventDefault();
+
+                let formData = $(this).serialize();
+
+                $.ajax({
+                    url: "{{ route('admin.deal-stages.store') }}",
+                    type: "POST",
+                    data: formData,
+                    success: function () {
+                        toastr.success('Stage added successfully!', 'Success');
+                        stageTable.ajax.reload();
+                        $('#createStageModal').addClass('hidden');
+                        $('#createStageForm')[0].reset();
+                    },
+                    error: function (xhr) {
+                        if (xhr.status === 422) {
+                            $.each(xhr.responseJSON.errors, function (key, value) {
+                                toastr.error(value[0], 'Validation Error');
+                            });
+                        } else {
+                            toastr.error('❌ An error occurred while adding the category.',
+                                'Error');
+                        }
+                    }
+                });
+            });
+
+            // ====================| Lead Stage Edit/Delete |============================
+            $(document).on("click", ".editStage", function () {
+                const id = $(this).data("id");
+                const name = $(this).data("name");
+
+                $("#editStageId").val(id);
+                $("#editStageName").val(name);
+                $("#editStageModal").removeClass("hidden");
+            });
+
+            $("#closeeditStageModal").on("click", function () {
+                $("#editStageModal").addClass("hidden");
+            });
+
+            $("#editStageForm").on("submit", function (e) {
+                e.preventDefault();
+
+                const id = $("#editStageId").val();
+                const name = $("#editStageName").val();
+
+                $.ajax({
+                    url: `/admin/deal-stages/${id}`,
+                    type: "PUT",
+                    data: {
+                        name,
+                        _token: "{{ csrf_token() }}"
+                    },
+                    success: function () {
+                        toastr.success("Stage updated successfully!");
+                        $("#editStageModal").addClass("hidden");
+                        stageTable.ajax.reload();
+                    },
+                    error: function () {
+                        toastr.error("Error updating Stage");
+                    },
+                });
+            });
+
+            $(document).on("click", ".deleteStage", function () {
+                const id = $(this).data("id");
+
+                confirmDelete(() => {
+                    $.ajax({
+                        url: `/admin/deal-stages/${id}`,
+                        type: "DELETE",
+                        data: {
+                            _token: "{{ csrf_token() }}"
+                        },
+                        success: function () {
+                            toastr.success("Stage deleted successfully!");
+                            stageTable.ajax.reload();
+                        },
+                        error: function () {
+                            toastr.error("Error deleting Stage");
+                        },
+                    });
+                });
+            });
+        });
+
+
+
         // Agent Table
         $(document).ready(function () {
 
@@ -288,11 +442,11 @@
                     data: null,
                     render: function (data) {
                         return `
-                                                        <div class="flex gap-2">
-                                                            <button class="editAgent !bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-xs" data-id="${data.id}" data-name="${data.name}">Edit</button>
-                                                            <button class="deleteAgent !bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-xs" data-id="${data.id}">Delete</button>
-                                                        </div>
-                                                    `;
+                                                            <div class="flex gap-2">
+                                                                <button class="editAgent !bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-xs" data-id="${data.id}" data-name="${data.name}">Edit</button>
+                                                                <button class="deleteAgent !bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-xs" data-id="${data.id}">Delete</button>
+                                                            </div>
+                                                        `;
                     },
                     orderable: false,
                     searchable: false
@@ -512,6 +666,7 @@
                         error: function () {
                             toastr.error("Failed to delete deal agent.");
                         }
+
                     });
                 });
             });
@@ -541,11 +696,11 @@
                     data: null,
                     render: function (data) {
                         return `
-                                                        <div class="flex justify-end gap-2">
-                                                            <button class="editCategory !bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-xs" data-id="${data.id}" data-name="${data.name}">Edit</button>
-                                                            <button class="deleteCategory !bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-xs" data-id="${data.id}">Delete</button>
-                                                        </div>
-                                                    `;
+                                                            <div class="flex justify-end gap-2">
+                                                                <button class="editCategory !bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-xs" data-id="${data.id}" data-name="${data.name}">Edit</button>
+                                                                <button class="deleteCategory !bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-xs" data-id="${data.id}">Delete</button>
+                                                            </div>
+                                                        `;
                     },
                     orderable: false,
                     searchable: false

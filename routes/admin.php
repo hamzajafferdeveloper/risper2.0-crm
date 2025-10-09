@@ -61,6 +61,8 @@ Route::prefix('admin')->middleware('isAdmin')->name('admin.')->group(function ()
             Route::delete('{id}', [DealController::class, 'deleteDealAgent'])->name('deal-agents.delete');
         });
 
+
+
         Route::prefix('language')->name('languages.')->group(function () {
             Route::post('all', [LanguageController::class, 'store'])->name('store');
             Route::get('/{id}/edit', [LanguageController::class, 'edit'])->name('edit');
@@ -71,7 +73,6 @@ Route::prefix('admin')->middleware('isAdmin')->name('admin.')->group(function ()
         Route::post('store-deal-agents', [DealController::class, 'storeDealAgent'])->name('deal-agents.store');
         Route::post('store-lead-pipline', [LeadController::class, 'storePipline'])->name('lead-pipline.store');
         Route::post('update-default-pipline', [LeadController::class, 'updateDefaultPipline'])->name('pipelines.setDefault');
-        Route::post('store-deal-stages', [LeadController::class, 'storeDealStage'])->name('deal-stages.store');
         Route::post('update-default-stage', [LeadController::class, 'updateDefaultStage'])->name('deal-stages.setDefault');
     });
 
@@ -80,6 +81,14 @@ Route::prefix('admin')->middleware('isAdmin')->name('admin.')->group(function ()
         Route::post('add', [DealController::class, 'addCategory'])->name('store');
         Route::put('/{id}', [DealController::class, 'updateCategory'])->name('update');
         Route::delete('/{id}', [DealController::class, 'deleteCategory'])->name('delete');
+    });
+
+    Route::prefix('deal-stages')->name('deal-stages.')->group(function () {
+        Route::get('/', [DealController::class, 'dealStage'])->name('all');
+        Route::get('/{id}/edit', [DealController::class, 'editDealStage']);
+        Route::post('/store', [LeadController::class, 'storeDealStage'])->name('store');
+        Route::put('{id}', [LeadController::class, 'updateStage'])->name('update');
+        Route::delete('{id}', [LeadController::class, 'deleteDealStage'])->name('delete');
     });
 
     Route::prefix('lead-source')->name('lead-sources.')->group(function () {

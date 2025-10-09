@@ -34,11 +34,11 @@ class LeadController extends Controller
                 ->addColumn('action', function ($row) {
                     return '
                         <button class="btn btn-sm !bg-[#8D35E3] hover:!bg-[#8D35E3]/80 focus:!bg-[#8D35E3]/80 active:!bg-[#8D35E3]/80 dark:!bg-[#8D35E3]/80 dark:hover:!bg-[#8D35E3]/80 dark:focus:!bg-[#8D35E3]/80 dark:active:!bg-[#8D35E3]/80 text-white p-2 rounded editEmployee"
-                                data-id="'.$row->id.'" title="Edit">
+                                data-id="' . $row->id . '" title="Edit">
                             <iconify-icon icon="mdi:pencil" class="text-lg"></iconify-icon>
                         </button>
 
-                        <button data-id="'.$row->id.'" class="btn btn-sm !bg-red-500 hover:!bg-red-500/80 focus:!bg-red-500/80 active:!bg-red-500/80 dark:!bg-red-500/80 dark:hover:!bg-red-500/80 dark:focus:!bg-red-500/80 dark:active:!bg-red-500/80 text-white p-2 rounded deleteEmployee" title="Delete">
+                        <button data-id="' . $row->id . '" class="btn btn-sm !bg-red-500 hover:!bg-red-500/80 focus:!bg-red-500/80 active:!bg-red-500/80 dark:!bg-red-500/80 dark:hover:!bg-red-500/80 dark:focus:!bg-red-500/80 dark:active:!bg-red-500/80 text-white p-2 rounded deleteEmployee" title="Delete">
                             <iconify-icon icon="mage:trash" class="text-lg"></iconify-icon>
                         </button>
                     ';
@@ -49,7 +49,7 @@ class LeadController extends Controller
 
         return view('admin.leads.index');
     }
- 
+
     public function store(Request $request)
     {
         // ✅ Step 1: Validate input
@@ -147,7 +147,7 @@ class LeadController extends Controller
         } catch (\Throwable $e) {
             DB::rollBack();
 
-            Log::error('Lead creation failed: '.$e->getMessage(), [
+            Log::error('Lead creation failed: ' . $e->getMessage(), [
                 'trace' => $e->getTraceAsString(),
                 'request' => $request->all(),
             ]);
@@ -332,5 +332,29 @@ class LeadController extends Controller
         } catch (Exception $e) {
             throw $e;
         }
+    }
+
+    public function updateStage(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'tag_color' => 'nullable|string|max:20',
+        ]);
+
+        $stage = DealStage::findOrFail($id);
+        $stage->update($validated);
+
+        return response()->json(['message' => 'Stage updated successfully']);
+    }
+
+    public function deleteDealStage(string $id)
+    {
+        $deal_stage = DealStage::findOrFail($id);
+
+        $deal_stage->delete();
+
+        return response()->json([
+            'message' => 'Deal Stage deleted successfully.',
+        ]);
     }
 }

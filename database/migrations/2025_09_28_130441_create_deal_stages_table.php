@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('deal_stages', function (Blueprint $table) {
             $table->id();
-            $table->string('tag_color');
+            $table->string(column: 'tag_color');
             $table->foreignId('lead_pipline_id')->nullable()->constrained('lead_piplines');
             $table->string('name');
             $table->enum('is_default', ['yes', 'no'])->default('no');

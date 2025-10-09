@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Deal;
 use App\Models\DealAgent;
 use App\Models\DealCategory;
+use App\Models\DealStage;
 use DB;
 use Exception;
 use Illuminate\Http\Request;
@@ -222,4 +223,21 @@ class DealController extends Controller
         ]);
     }
 
+    public function dealStage(Request $request)
+    {
+        if ($request->ajax()) {
+            $source = DealStage::orderBy('id', 'desc');
+
+            return DataTables::of($source)
+                ->addIndexColumn()
+                ->rawColumns(['status', 'action'])
+                ->make(true);
+        }
+
+        return response()->json([
+            'message' => 'No category found',
+        ], 201);
+    }
+
+    
 }
