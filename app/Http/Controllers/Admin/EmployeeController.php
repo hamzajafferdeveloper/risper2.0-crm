@@ -3,7 +3,13 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\BusinessAddress;
+use App\Models\Country;
+use App\Models\Department;
 use App\Models\Employee;
+use App\Models\EmployeeDesignation;
+use App\Models\EmploymentType;
+use App\Models\Language;
 use Exception;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
@@ -47,15 +53,9 @@ class EmployeeController extends Controller
         return view('admin.employees.index');
     }
 
-    public function add()
-    {
-        return view('admin.employees.add');
-    }
-
     public function store(Request $request)
     {
         // Debug incoming data (optional)
-        // dd($request->all());
 
         try {
             $validated = $request->validate([
@@ -109,9 +109,7 @@ class EmployeeController extends Controller
             }
 
             // ✅ Convert skills string into array
-            if ($request->filled('skills')) {
-                $validated['skills'] = explode(',', $request->input('skills'));
-            }
+            $validated['skills'] = $validated['skills'] = $request->filled('skills') ? explode(',', $request->input('skills')) : [];
 
             // ✅ Create employee
             $employee = Employee::create($validated);
@@ -140,14 +138,46 @@ class EmployeeController extends Controller
 
     public function edit($id)
     {
-        // return view("");
+
+        try {
+            $employee = Employee::findOrFail($id);
+
+            return response()->json($employee);
+        } catch (QueryException $e) {
+            Log::error('Database error while editing employee: '.$e->getMessage());
+        }
+    }
+
+    public function getEditDropdown()
+    {
+        try {
+
+            $countries = Country::all();
+            $languages = Language::all();
+            $designations = EmployeeDesignation::all();
+            $departments = Department::all();
+            $employmentTypes = EmploymentType::all();
+            $bussinessAddresses = BusinessAddress::all();
+            $employees = Employee::all();
+
+            return response()->json([
+                'countries' => $countries,
+                'languages' => $languages,
+                'designations' => $designations,
+                'departments' => $departments,
+                'employmentTypes' => $employmentTypes,
+                'bussinessAddresses' => $bussinessAddresses,
+                'employees' => $employees,
+            ], 200);
+        } catch (Exception $e) {
+            Log::error('Error while getting edit dropdown: '.$e->getMessage());
+        }
     }
 
     public function update(Request $request, $id)
     {
         try {
             $employee = Employee::findOrFail($id);
-
             $validated = $request->validate([
                 'employee_id' => 'required|string|max:50|unique:employees,employee_id,'.$employee->id,
                 'salutation' => 'in:Mr,Mrs,Miss,Dr.,Sir,Madam',
@@ -166,19 +196,23 @@ class EmployeeController extends Controller
                 'language_id' => 'nullable|exists:languages,id',
                 'address' => 'nullable|string|max:500',
                 'about' => 'nullable|string',
-                'login_allowed' => 'in:yes,no',
-                'receive_email_notification' => 'in:yes,no',
+                'login_allowed' => 'nullable',
+                'receive_email_notification' => 'nullable',
                 'slack_member_id' => 'nullable|string|max:255',
-                'skills' => 'nullable|array',
+                'skills' => 'nullable|string',
                 'probation_end_date' => 'nullable|date',
                 'notice_period_start_date' => 'nullable|date',
                 'notice_period_end_date' => 'nullable|date',
                 'currency_id' => 'nullable|exists:currencies,id',
-                'hourly_date' => 'nullable|numeric|min:0',
+                'hourly_rate' => 'nullable|numeric|min:0',
                 'employee_type_id' => 'nullable|exists:employment_types,id',
                 'marital_status' => 'in:Single,Married,Widower,Widow,Separate,Divorced,Engaged',
                 'business_address_id' => 'nullable|exists:business_addresses,id',
             ]);
+
+            // Convert checkboxes to yes/no
+            $validated['login_allowed'] = $request->has('login_allowed') ? 'yes' : 'no';
+            $validated['receive_email_notification'] = $request->has('receive_email_notification') ? 'yes' : 'no';
 
             // Hash new password if provided
             if (! empty($validated['password'])) {
@@ -187,19 +221,22 @@ class EmployeeController extends Controller
                 unset($validated['password']);
             }
 
-            // Handle profile picture update
+            // Handle profile picture
             if ($request->hasFile('profile_pic')) {
-                // Delete old file if it exists
+                // Delete old picture if exists
                 if ($employee->profile_pic && Storage::disk('public')->exists($employee->profile_pic)) {
                     Storage::disk('public')->delete($employee->profile_pic);
                 }
 
-                // Save new file with unique name
                 $file = $request->file('profile_pic');
                 $uniqueName = Str::uuid()->toString().'.'.$file->getClientOriginalExtension();
                 $validated['profile_pic'] = $file->storeAs('employees', $uniqueName, 'public');
             }
 
+            // Convert skills string into array
+                $validated['skills'] =  $validated['skills'] = $request->filled('skills') ? explode(',', $request->input('skills')) : [];
+
+            // Update employee
             $employee->update($validated);
 
             return response()->json([

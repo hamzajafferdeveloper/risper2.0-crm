@@ -39,6 +39,12 @@ class Employee extends Model
 
     protected $hidden = ['password'];
 
+    protected $casts = [
+        'skills' => 'array', // <-- this is required
+        'joining_date' => 'date',
+        'date_of_birth' => 'date',
+    ];
+
     public function reportingTo()
     {
         return $this->belongsTo(Employee::class, 'reporting_to');

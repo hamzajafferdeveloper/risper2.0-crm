@@ -7,6 +7,9 @@ use App\Http\Controllers\Admin\LeadController;
 use App\Http\Controllers\Admin\SettingsController;
 use Illuminate\Support\Facades\Route;
 
+Route::get('employee/get-dropdown-data', [EmployeeController::class,'getEditDropdown'])->name('employee.get-dropdown');
+
+
 Route::prefix('admin')->middleware('isAdmin')->name('admin.')->group(function () {
     Route::get('/dashboard', function () {
         return view('admin.dashboard');
@@ -15,7 +18,8 @@ Route::prefix('admin')->middleware('isAdmin')->name('admin.')->group(function ()
     Route::prefix('employees')->name('employees.')->group(function () {
         Route::get('/', [EmployeeController::class, 'index'])->name('index');
         Route::post('/store', [EmployeeController::class, 'store'])->name('store');
-        Route::get('/{id}', [EmployeeController::class, 'show'])->name('show');
+        Route::get('/{id}', [EmployeeController::class, 'show'])->name(name: 'show');
+        Route::get('/{id}/edit', [EmployeeController::class, 'edit'])->name('edit');
         Route::put('/{id}', [EmployeeController::class, 'update'])->name('update');
         Route::delete('/{id}', [EmployeeController::class, 'destroy'])->name('destroy');
     });
@@ -53,6 +57,9 @@ Route::prefix('admin')->middleware('isAdmin')->name('admin.')->group(function ()
 
         Route::prefix('language')->name('languages.')->group(function () {
             Route::post('all', [LanguageController::class, 'store'])->name('store');
+            Route::get('/{id}/edit', [LanguageController::class, 'edit'])->name('edit');
+            Route::put('/{id}', [LanguageController::class, 'update'])->name('destroy');
+            Route::delete('/{id}', [LanguageController::class, 'destroy'])->name('destroy');
         });
 
         Route::post('store-deal-agents', [DealController::class, 'storeDealAgent'])->name('deal-agents.store');

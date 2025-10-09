@@ -6,7 +6,7 @@
         <a class="sidebar-logo">
             <img src="{{ asset('assets/images/logo.svg') }}" alt="site logo" class="light-logo">
             <img src="{{ asset('assets/images/logo.svg') }}" alt="site logo" class="dark-logo">
-            <img src="{{ asset('assets/images/logo.svg') }}" alt="site logo" class="logo-icon">
+            <img src="{{ asset('assets/images/logo-icon.svg') }}" alt="site logo" class="logo-icon">
         </a>
     </div>
     <div class="sidebar-menu-area">

@@ -18,7 +18,7 @@ class LanguageController extends Controller
             $languages = Language::all();
             return DataTables::of($languages)
                 ->addIndexColumn()
-                ->rawColumns(['status','action'])
+                ->rawColumns(['action'])
                 ->make(true);
         }
 
@@ -66,7 +66,8 @@ class LanguageController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $language = Language::findOrFail($id);
+        return response()->json($language, 200);
     }
 
     /**

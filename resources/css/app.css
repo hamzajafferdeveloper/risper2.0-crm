@@ -243,33 +243,3 @@ div.dataTables_wrapper div.row:last-of-type {
 td.dataTables_empty {
     text-align: center;
 }
-
-.swal-confirm-btn {
-    background-color: #8D35E3 !important;
-    color: white !important;
-    border: none !important;
-    padding: 8px 20px !important;
-    border-radius: 6px !important;
-    font-weight: 500 !important;
-    transition: background-color 0.2s ease;
-}
-.swal-confirm-btn:hover {
-    background-color: #7329bc !important;
-}
-
-.swal-cancel-btn {
-    background-color: #e5e5e5 !important;
-    color: #333 !important;
-    border: none !important;
-    padding: 8px 20px !important;
-    border-radius: 6px !important;
-    font-weight: 500 !important;
-    transition: background-color 0.2s ease;
-}
-.swal-cancel-btn:hover {
-    background-color: #d4d4d4 !important;
-}
-
-.swal2-actions {
-    gap: 10px !important;
-}
