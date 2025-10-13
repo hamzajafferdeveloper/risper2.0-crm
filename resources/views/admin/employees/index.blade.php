@@ -702,6 +702,9 @@
                 form.find('input[name="date_of_birth"]').val(employee.date_of_birth);
                 form.find('textarea[name="address"]').val(employee.address);
                 form.find('textarea[name="about"]').val(employee.about);
+                form.find('input[name="probation_end_date"]').val(employee.probation_end_date);
+                form.find('input[name="notice_period_start_date"]').val(employee.notice_period_start_date);
+                form.find('input[name="notice_period_end_date"]').val(employee.notice_period_end_date);
 
                 // Select dropdowns
                 form.find('select[name="salutation"]').val(employee.salutation).trigger('change');

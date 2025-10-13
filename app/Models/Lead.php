@@ -13,7 +13,12 @@ class Lead extends Model
         'lead_source_id',
         'added_by',
         'lead_owner',
-        'auto_convert_lead_to_client'
+        'auto_convert_lead_to_client',
+    ];
+
+    protected $casts = [
+        'created_at' => 'datetime:Y-m-d H:i:s',
+        'updated_at' => 'datetime:Y-m-d H:i:s',
     ];
 
     public function leadOwner()
@@ -21,8 +26,9 @@ class Lead extends Model
         return $this->belongsTo(Employee::class, 'lead_owner', 'id');
     }
 
-    public function leadAddedBy(){
-        return $this->belongsTo(Employee::class,'added_by', 'id');
+    public function leadAddedBy()
+    {
+        return $this->belongsTo(Employee::class, 'added_by', 'id');
     }
 
     public function source()
