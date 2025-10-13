@@ -31,10 +31,11 @@ class AddLeadForm extends Component
 
     public $countries;
 
+    public $formId;
     /**
      * Create a new component instance.
      */
-    public function __construct()
+    public function __construct(string $formId = null)
     {
         $this->lead_sources = LeadSource::all();
         $this->employees = Employee::all();
@@ -61,6 +62,8 @@ class AddLeadForm extends Component
                 'name' => 'Tablet',
             ],
         ];
+
+        $this->formId = $formId;
     }
 
     /**

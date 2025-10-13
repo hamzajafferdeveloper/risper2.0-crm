@@ -27,7 +27,7 @@ Route::prefix('admin')->middleware('isAdmin')->name('admin.')->group(function ()
     Route::prefix('leads')->name('leads.')->group(function () {
         Route::get('/', [LeadController::class, 'index'])->name('index');
         Route::post('/store', [LeadController::class, 'store'])->name('store');
-        Route::get('/{id}', [LeadController::class, 'show'])->name('show');
+        Route::get('/{id}/edit', [LeadController::class, 'edit'])->name('edit');
         Route::put('/{id}', [LeadController::class, 'update'])->name('update');
         Route::delete('/{id}', [LeadController::class, 'destroy'])->name('destroy');
     });

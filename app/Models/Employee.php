@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 
-class Employee extends Model
+class Employee extends Authenticatable
 {
     protected $fillable = [
         'employee_id',
@@ -34,15 +34,18 @@ class Employee extends Model
         'hourly_rate',
         'employee_type_id',
         'marital_status',
-        'business_address_id'
+        'business_address_id',
     ];
 
     protected $hidden = ['password'];
 
     protected $casts = [
         'skills' => 'array', // <-- this is required
-        'joining_date' => 'date',
-        'date_of_birth' => 'date',
+        'joining_date' => 'date:Y-m-d',
+        'date_of_birth' => 'date:Y-m-d',
+        'probation_end_date' => 'date:Y-m-d',
+        'notice_period_start_date' => 'date:Y-m-d',
+        'notice_period_end_date' => 'date:Y-m-d',
     ];
 
     public function reportingTo()

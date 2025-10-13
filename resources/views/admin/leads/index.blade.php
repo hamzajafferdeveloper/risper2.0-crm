@@ -49,7 +49,22 @@
                 <button class="closeAddModal text-gray-500 hover:text-gray-700">✕</button>
             </div>
 
-            <x-admin.add-lead-form />
+            <x-admin.add-lead-form formId="addLeadForm" />
+        </div>
+    </div>
+    <!-- Edit Employee Modal -->
+    <div id="editLeadModal" class="hidden flex fixed inset-0 z-50  justify-end bg-black/50 transition-opacity duration-300">
+
+        <!-- Modal Panel -->
+        <div id="editLeadPanel"
+            class="relative bg-white dark:bg-gray-800 rounded-l-xl shadow-2xl p-6 w-full max-w-7xl z-10 transform translate-x-full transition-transform duration-300">
+
+            <div class="flex justify-between items-center border-b pb-3 mb-4">
+                <h2 class="text-lg font-semibold">Edit Lead</h2>
+                <button class="closeEditModal text-gray-500 hover:text-gray-700">✕</button>
+            </div>
+
+            <x-admin.add-lead-form formId="editLeadForm" />
         </div>
     </div>
 @endsection
@@ -117,13 +132,60 @@
                 }
             });
 
-            // =================== Modal Controls =================== //
+            function confirmDelete(action) {
+                Swal.fire({
+                    title: "Are you sure?",
+                    text: "This record will be deleted permanently!",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Yes, delete it!",
+                    cancelButtonText: "Cancel",
+                    customClass: {
+                        confirmButton: "swal-confirm-btn",
+                        cancelButton: "swal-cancel-btn"
+                    },
+                    buttonsStyling: false, // disable default SweetAlert2 styling
+                    didRender: () => {
+                        // optional: you can force a hover effect via JS if needed
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        action();
+                    }
+                });
+            }
+
+            function initSelect2(modalSelector) {
+                const $modal = $(modalSelector);
+                if (window.jQuery && typeof jQuery.fn.select2 === 'function') {
+                    $modal.find('.select2').select2({
+                        placeholder: "Search or select",
+                        allowClear: true,
+                        width: '100%',
+                        dropdownParent: $modal.find('.relative') // ensures dropdown shows inside modal
+                    });
+                }
+            }
+
+            function syncCompanySection(modalId) {
+                const form = $(`#${modalId} form`);
+                const checkbox = form.find('#companyDetail');
+                const section = form.find('#companySection');
+                if (checkbox.length && section.length) {
+                    section.toggleClass('hidden', !checkbox.prop('checked'));
+                }
+            }
+
+            // =================== Utilities =================== //
             // Utility: open modal
             function openModal(modalId, panelId) {
                 $(`#${modalId}`).removeClass('hidden');
                 setTimeout(() => {
                     $(`#${panelId}`).removeClass('translate-x-full');
                 }, 10);
+
+                // ✅ Sync Company Details visibility
+                syncCompanySection(modalId);
             }
 
             // Utility: close modal
@@ -134,21 +196,104 @@
                 }, 150);
             }
 
+
+            function fillLeadForm(lead) {
+                const form = $('#editLeadForm'); // target only edit modal form
+
+                form.find('#leadId').val(lead.id);
+                form.find('select[name="salutation"]').val(lead.salutation).trigger('change');
+                form.find('input[name="name"]').val(lead.name);
+                form.find('input[name="email"]').val(lead.email);
+
+                form.find('select[name="lead_source_id"]').val(lead.lead_source_id).trigger('change');
+                form.find('select[name="added_by"]').val(lead.added_by).trigger('change');
+                form.find('select[name="lead_owner"]').val(lead.lead_owner?.id || '').trigger('change');
+
+                form.find('#auto_convert_lead_to_client').prop('checked', lead.auto_convert_lead_to_client ===
+                    'yes');
+
+                if (lead.company_detail) {
+                    form.find('#companyDetail').prop('checked', true);
+                    form.find('#companyDetail').triggerHandler('change');
+
+                    form.find('input[name="company_name"]').val(lead.company_detail.name || '');
+                    form.find('input[name="website"]').val(lead.company_detail.website || '');
+                    form.find('input[name="mobile"]').val(lead.company_detail.mobile || '');
+                    form.find('input[name="office_phone_number"]').val(lead.company_detail.office_phone_number ||
+                        '');
+                    form.find('select[name="country_id"]').val(lead.company_detail.country_id || '').trigger(
+                        'change');
+                    form.find('input[name="state"]').val(lead.company_detail.state || '');
+                    form.find('input[name="city"]').val(lead.company_detail.city || '');
+                    form.find('input[name="postal_code"]').val(lead.company_detail.postal_code || '');
+                    form.find('textarea[name="address"]').val(lead.company_detail.address || '');
+                } else {
+                    form.find('#companyDetail').prop('checked', false).trigger('change');
+                }
+            }
+
+
             // ========== Add Lead Modal ========== //
             $('#openAddLeadModal').on('click', function() {
                 openModal('addLeadModal', 'addLeadPanel');
+                setTimeout(() => initSelect2('#addLeadModal'), 200);
             });
 
             $('.closeAddModal').on('click', function() {
+                $('#addLeadForm')[0].reset();
                 closeModal('addLeadModal', 'addLeadPanel');
             });
 
             $('#addLeadModal').on('click', function(e) {
                 if (e.target.id === 'addLeadModal') {
+                    $('#addLeadForm')[0].reset();
                     closeModal('addLeadModal', 'addLeadPanel');
                 }
             });
 
+            $('#closeModal').on('click', function() {
+                $('#addLeadForm')[0].reset();
+                closeModal('editLeadModal', 'editLeadPanel');
+                closeModal('addLeadModal', 'addLeadPanel');
+            })
+
+            // ========== Edit Lead Modal ========== //
+            $(document).on('click', '.editLead', function() {
+                const id = $(this).data('id');
+                openModal('editLeadModal', 'editLeadPanel');
+                setTimeout(() => initSelect2('#editLeadModal'), 200);
+
+                $.ajax({
+                    url: `/admin/leads/${id}/edit`,
+                    type: 'GET',
+                    beforeSend: function() {
+                        $('#editLeadPanel .p-6').html(
+                            '<div class="text-center py-10 text-gray-500">Loading Lead...</div>'
+                        );
+                    },
+                    success: function(response) {
+                        fillLeadForm(response.lead);
+                        syncCompanySection('editLeadModal');
+
+                    },
+                    error: function() {
+                        toastr.error('Failed to load lead details.');
+                    }
+                });
+            });
+
+            $('#editLeadModal').on('click', function(e) {
+                if (e.target.id === 'editLeadModal') {
+
+                    $('#editLeadForm')[0].reset();
+                    closeModal('editLeadModal', 'editLeadPanel');
+                }
+            });
+
+            $('#closeModal').on('click', function() {
+                $('#editLeadForm')[0].reset();
+                closeModal('editLeadModal', 'editLeadPanel');
+            })
 
             let actionType = "save"; // default
 
@@ -161,44 +306,62 @@
                 }
             });
 
-            $('#addLeadForm').on('submit', function(e) {
+            $('#addLeadForm, #editLeadForm').on('submit', function(e) {
                 e.preventDefault();
 
-                let formData = $(this).serialize();
+                const form = $(this);
+                const leadId = form.find('#leadId').val();
+                const url = leadId ? `/admin/leads/${leadId}` : `/admin/leads/store`;
+                const method = leadId ? 'PUT' : 'POST';
+
+                $('#saveBtn').prop('disabled', true).text('Saving...');
 
                 $.ajax({
-                    url: "{{ route('admin.leads.store') }}",
-                    type: "POST",
-                    data: formData,
+                    url: url,
+                    type: 'POST',
+                    data: form.serialize() + (leadId ? '&_method=PUT' : ''),
                     success: function() {
-                        toastr.success('✅ Lead added successfully!', 'Success');
+                        toastr.success(leadId ? 'Lead updated successfully!' :
+                            'Lead added successfully!');
+                        form[0].reset();
+                        closeModal(leadId ? 'editLeadModal' : 'addLeadModal', leadId ?
+                        'editLeadPanel' : 'addLeadPanel');
                         table.ajax.reload();
-
-                        if (actionType === "save") {
-                            // Close modal and reset
-                            $('#addLeadModal').addClass('hidden');
-                            $('#addLeadForm')[0].reset();
-                        } else if (actionType === "save_add_more") {
-                            // Just reset form, keep modal open
-                            $('#addLeadForm')[0].reset();
-                            // Re-init select2 after reset
-                            if (window.jQuery && typeof jQuery.fn.select2 === 'function') {
-                                jQuery('.select2').val('').trigger('change');
-                            }
-                        }
-
-                        // Reset action type back
-                        actionType = "save";
                     },
                     error: function(xhr) {
                         if (xhr.status === 422) {
                             $.each(xhr.responseJSON.errors, function(key, value) {
-                                toastr.error(value[0], 'Validation Error');
+                                toastr.error(value[0]);
                             });
                         } else {
-                            toastr.error('❌ An error occurred while adding the lead.', 'Error');
+                            toastr.error('An error occurred.');
                         }
+                    },
+                    complete: function() {
+                        $('#saveBtn').prop('disabled', false).text('Save');
                     }
+                });
+            });
+
+            $(document).on('click', '.deleteLead', function() {
+                const leadId = $(this).data('id');
+                const url = `/admin/leads/${leadId}`;
+
+                confirmDelete(() => {
+                    $.ajax({
+                        url: url,
+                        type: 'DELETE',
+                        data: {
+                            _token: "{{ csrf_token() }}"
+                        },
+                        success: function() {
+                            toastr.success('Lead deleted successfully!');
+                            table.ajax.reload();
+                        },
+                        error: function() {
+                            toastr.error('Failed to delete lead.');
+                        }
+                    });
                 });
             });
         });

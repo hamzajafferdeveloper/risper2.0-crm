@@ -29,4 +29,14 @@ class Lead extends Model
     {
         return $this->belongsTo(LeadSource::class, 'lead_source_id');
     }
+
+    public function deal()
+    {
+        return $this->hasOne(Deal::class);
+    }
+
+    public function companyDetail()
+    {
+        return $this->hasOne(LeadCompanyDetail::class);
+    }
 }

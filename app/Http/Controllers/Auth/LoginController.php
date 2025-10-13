@@ -49,7 +49,7 @@ class LoginController extends Controller
         }
 
         // Verify password
-        if (! Hash::check($request->password, $account->password)) {
+        if (!Hash::check($request->password, $account->password)) {
             return response()->json([
                 'success' => false,
                 'message' => 'Invalid credentials',
@@ -58,14 +58,22 @@ class LoginController extends Controller
 
         if ($isEmployee) {
             Auth::guard('employee')->login($account);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Login successful',
+            ], 200);
+
         } else {
             Auth::guard('web')->login($account);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Login successful',
+                'redirect' => route('admin.dashboard'),
+            ], 200);
         }
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Login successful',
-            'redirect' => route('admin.dashboard'),
-        ], 200);
+
     }
 }

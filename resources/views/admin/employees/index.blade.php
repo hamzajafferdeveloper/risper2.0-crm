@@ -64,7 +64,7 @@
             class="relative bg-white dark:bg-gray-800 rounded-l-xl shadow-2xl p-6 w-full max-w-7xl z-10 transform translate-x-full transition-transform duration-300">
 
             <div class="flex justify-between items-center border-b pb-3 mb-4">
-                <h2 class="text-lg font-semibold">Edit Member</h2>
+                <h2 class="text-lg font-semibold">Edit Employee</h2>
                 <button class="closeEditModal text-gray-500 hover:text-gray-700">✕</button>
             </div>
 
@@ -399,8 +399,6 @@
             </form>
         </div>
     </div>
-
-    <x-confirm />
 @endsection
 
 @push('scripts')
@@ -575,37 +573,27 @@
             $(document).on('click', '.deleteEmployee', function(e) {
                 e.preventDefault();
                 deleteId = $(this).data('id');
-                openModal('confirmModal', 'confirmPanel');
-            });
-
-            // Cancel
-            $('#cancelDelete').on('click', function() {
-                closeModal('confirmModal', 'confirmPanel');
-                deleteId = null;
-            });
-
-            // Confirm delete
-            $('#confirmDelete').on('click', function() {
-                if (!deleteId) return;
-
-                $.ajax({
-                    url: "/admin/employees/" + deleteId,
-                    type: 'DELETE',
-                    data: {
-                        _token: '{{ csrf_token() }}'
-                    },
-                    success: function() {
-                        toastr.success('Employee deleted successfully!', 'Success');
-                        table.ajax.reload();
-                    },
-                    error: function() {
-                        toastr.error('❌ An error occurred while deleting the employee.',
-                            'Error');
-                    },
-                    complete: function() {
-                        closeModal('confirmModal', 'confirmPanel');
-                        deleteId = null;
-                    }
+                confirmDelete(() => {
+                    $.ajax({
+                        url: "/admin/employees/" + deleteId,
+                        type: 'DELETE',
+                        data: {
+                            _token: '{{ csrf_token() }}'
+                        },
+                        success: function() {
+                            toastr.success('Employee deleted successfully!', 'Success');
+                            table.ajax.reload();
+                        },
+                        error: function() {
+                            toastr.error(
+                                '❌ An error occurred while deleting the employee.',
+                                'Error');
+                        },
+                        complete: function() {
+                            closeModal('confirmModal', 'confirmPanel');
+                            deleteId = null;
+                        }
+                    });
                 });
             });
 
@@ -788,6 +776,5 @@
 
 
         })
-
     </script>
 @endpush

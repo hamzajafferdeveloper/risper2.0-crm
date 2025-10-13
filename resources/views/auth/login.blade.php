@@ -7,7 +7,7 @@
         {{-- Logo --}}
         <div>
             <a class="mb-2.5 max-w-[290px] inline-block">
-                <img src="{{ asset('assets/images/logo.png') }}" alt="Logo">
+                <img src="{{ asset('assets/images/logo.svg') }}" alt="Logo">
             </a>
             <h4 class="mb-3 text-2xl font-bold">Sign In to your Account</h4>
             <p class="mb-8 text-secondary-light text-lg">
