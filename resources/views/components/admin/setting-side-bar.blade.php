@@ -7,12 +7,14 @@
 
     @php
         $settingLinks = [
-            ['name' => 'Company Settings', 'route' => 'admin.settings.index'],
+            // ['name' => 'Company Settings', 'route' => 'admin.settings.index'],
             ['name' => 'Business Address', 'route' => 'admin.settings.business-address'],
             ['name' => 'Languages', 'route' => 'admin.settings.languages'],
             ['name' => 'Employees Designation', 'route' => 'admin.settings.employees-designation'],
             ['name' => 'Employment Types', 'route' => 'admin.settings.employment-types'],
+            ['name' => 'Departments', 'route' => 'admin.settings.departments'],
             ['name' => 'Lead', 'route' => 'admin.settings.leads'],
+
         ];
         $currentRoute = Route::currentRouteName();
     @endphp

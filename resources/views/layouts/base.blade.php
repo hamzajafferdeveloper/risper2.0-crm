@@ -28,13 +28,12 @@
     <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" />
-
     <!-- Vite (Tailwind + your app styles/scripts) -->
     @vite('resources/css/app.css')
     @vite('resources/js/app.js')
 </head>
 
-<body class="dark:bg-neutral-800 bg-neutral-100 dark:text-white">
+<body class="dark:bg-neutral-800 bg-neutral-100 max-w-screen dark:text-white">
     @yield('content-base')
 
     <script src="//unpkg.com/alpinejs" defer></script>
@@ -52,12 +51,12 @@
     <script src="{{ asset('assets/js/lib/audioplayer.js') }}"></script>
     <script src="{{ asset('assets/js/flowbite.min.js') }}"></script>
     <script src="{{ asset('assets/js/app.js') }}"></script>
+    <script src="{{ asset('assets/js/custom.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
 
     <!-- Page-specific scripts -->
     @stack('scripts')

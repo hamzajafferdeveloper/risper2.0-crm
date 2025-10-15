@@ -21,32 +21,138 @@ class LeadController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $leads = Lead::with('leadOwner', 'leadAddedBy');
 
-            return DataTables::of($leads)
+            $query = Lead::with(['deal.dealStage', 'leadOwner', 'deal.dealWatcher', 'leadAddedBy']);
+
+            // 🔍 Search by name
+            if ($request->search_name) {
+                $query->where('name', 'like', "%{$request->search_name}%");
+            }
+
+            // 🧑 Filter by Added By
+            if ($request->added_by) {
+                $query->where('added_by', $request->added_by);
+            }
+
+            // 🧍 Filter by Owner
+            if ($request->owner_id) {
+                $query->where('lead_owner', $request->owner_id);
+            }
+
+            // 👁️ Filter by Watcher
+            if ($request->watcher_id) {
+                $query->whereHas('deal.dealWatcher', function ($q) use ($request) {
+                    $q->where('id', $request->watcher_id);
+                });
+            }
+
+            // 📊 Filter by Stage
+            if ($request->stage_id) {
+                $query->whereHas('deal', function ($q) use ($request) {
+                    $q->where('deal_stage_id', $request->stage_id);
+                });
+            }
+
+            // 📅 Filter by Date Range
+            if ($request->start_date && $request->end_date) {
+                $query->whereBetween('created_at', [$request->start_date, $request->end_date]);
+            } elseif ($request->start_date) {
+                $query->whereDate('created_at', '>=', $request->start_date);
+            } elseif ($request->end_date) {
+                $query->whereDate('created_at', '<=', $request->end_date);
+            }
+
+            // ✅ DataTable
+            return DataTables::of($query)
                 ->addIndexColumn()
                 ->addColumn('lead_added_by_name', function ($row) {
-                    return $row->leadAddedBy?->name ?? '-';
+                    $user = $row->leadAddedBy;
+                    if (!$user) return '-';
+
+                    $image = $user->profile_pic
+                        ? asset('storage/' . $user->profile_pic)
+                        : asset('assets/images/avatar/avatar.png');
+
+                    return '
+                        <div class="flex items-center gap-2">
+                            <img src="' . $image . '" alt="' . e($user->name) . '" class="w-8 h-8 rounded-full object-cover">
+                            <span>' . e($user->name) . '</span>
+                        </div>
+                    ';
                 })
                 ->addColumn('lead_owner_name', function ($row) {
-                    return $row->leadOwner?->name ?? '-';
+                    $user = $row->leadOwner;
+                    if (!$user) return '-';
+
+                    $image = $user->profile_pic
+                        ? asset('storage/' . $user->profile_pic)
+                        : asset('assets/images/avatar/avatar.png');
+
+                    return '
+                        <div class="flex items-center gap-2">
+                            <img src="' . $image . '" alt="' . e($user->name) . '" class="w-8 h-8 rounded-full object-cover">
+                            <span>' . e($user->name) . '</span>
+                        </div>
+                    ';
                 })
+                ->addColumn('deal_watcher_name', function ($row) {
+                    $user = $row->deal?->dealWatcher;
+                    if (!$user) return '-';
+
+                    $image = $user->profile_pic
+                        ? asset('storage/' . $user->profile_pic)
+                        : asset('assets/images/avatar/avatar.png');
+
+                    return '
+                        <div class="flex items-center gap-2">
+                            <img src="' . $image . '" alt="' . e($user->name) . '" class="w-8 h-8 rounded-full object-cover">
+                            <span>' . e($user->name) . '</span>
+                        </div>
+                    ';
+                })
+                ->addColumn('deal_stage_name', function ($row) {
+                    $stages = DealStage::all();
+                    $currentStageId = $row->deal?->deal_stage_id ?? null;
+
+                    $options = '<option value="">Select Stage</option>';
+                    foreach ($stages as $stage) {
+                        $selected = $stage->id == $currentStageId ? 'selected' : '';
+                        $options .= "<option value='{$stage->id}' {$selected}>{$stage->name}</option>";
+                    }
+
+                    $dotColor = $row->deal?->dealStage?->tag_color ?? '#d1d5db'; // default gray
+
+                    return '
+                        <div class="flex items-center gap-2">
+                            <span class="inline-block w-2.5 h-2.5 rounded-full" style="background-color: '.$dotColor.'"></span>
+                            <select id="" class="deal-stage-select  text-sm rounded-md border-gray-300 focus:ring-0"
+                                data-lead-id="'.$row->id.'">
+                                '.$options.'
+                            </select>
+                        </div>
+                    ';
+                })
+
                 ->addColumn('action', function ($row) {
                     return '
-                        <button class="btn btn-sm !bg-[#8D35E3] hover:!bg-[#8D35E3]/80 focus:!bg-[#8D35E3]/80 active:!bg-[#8D35E3]/80 dark:!bg-[#8D35E3]/80 dark:hover:!bg-[#8D35E3]/80 dark:focus:!bg-[#8D35E3]/80 dark:active:!bg-[#8D35E3]/80 text-white p-2 rounded editLead"
-                                data-id="'.$row->id.'" title="Edit">
+                    <div class="flex gap-2">
+                        <button class="btn btn-sm !bg-[#8D35E3] hover:!bg-[#8D35E3]/80 text-white p-2 rounded editLead"
+                            data-id="'.$row->id.'" title="Edit">
                             <iconify-icon icon="mdi:pencil" class="text-lg"></iconify-icon>
                         </button>
 
-                        <button data-id="'.$row->id.'" class="btn btn-sm !bg-red-500 hover:!bg-red-500/80 focus:!bg-red-500/80 active:!bg-red-500/80 dark:!bg-red-500/80 dark:hover:!bg-red-500/80 dark:focus:!bg-red-500/80 dark:active:!bg-red-500/80 text-white p-2 rounded deleteLead" title="Delete">
+                        <button data-id="'.$row->id.'"
+                            class="btn btn-sm !bg-red-500 hover:!bg-red-500/80 text-white p-2 rounded deleteLead"
+                            title="Delete">
                             <iconify-icon icon="mage:trash" class="text-lg"></iconify-icon>
                         </button>
-                    ';
+                    </div>';
                 })
-                ->rawColumns(['status', 'action'])
+                ->rawColumns(['deal_stage_name', 'action', 'lead_added_by_name', 'lead_owner_name', 'deal_watcher_name'])
                 ->make(true);
         }
 
+        // Normal (non-AJAX) page load
         return view('admin.leads.index');
     }
 
@@ -120,21 +226,18 @@ class LeadController extends Controller
                 ]);
             }
 
-            // ✅ Step 4: Add deal if needed
-            if ($request->has('has_deal')) {
-                Deal::create([
-                    'lead_id' => $lead->id,
-                    'name' => $request->deal_name,
-                    'pipe_line_id' => $request->pipe_line_id,
-                    'deal_stage_id' => $request->deal_stage_id,
-                    'currency_id' => 1, // default currency
-                    'deal_value' => $request->deal_value,
-                    'close_date' => $request->close_date,
-                    'deal_category_id' => $request->deal_category_id,
-                    'deal_agent_id' => $request->deal_agent ?? auth()->id(),
-                    'deal_watcher_id' => $request->deal_watcher,
-                ]);
-            }
+            Deal::create([
+                'lead_id' => $lead->id,
+                'name' => $request->deal_name,
+                'pipe_line_id' => $request->pipe_line_id,
+                'deal_stage_id' => $request->deal_stage_id,
+                'currency_id' => 1, // default currency
+                'deal_value' => $request->deal_value,
+                'close_date' => $request->close_date,
+                'deal_category_id' => $request->deal_category_id,
+                'deal_agent_id' => $request->deal_agent ?? auth()->id(),
+                'deal_watcher_id' => $request->deal_watcher,
+            ]);
 
             DB::commit();
 
@@ -158,6 +261,12 @@ class LeadController extends Controller
                 'error' => $e->getMessage(),
             ], 500);
         }
+    }
+
+    public function show($id){
+        $lead = Lead::with(['companyDetail', 'deal.dealWatcher', 'deal.dealStage', 'leadOwner', 'leadAddedBy', 'source'])->findOrFail($id);
+
+        return view('admin.leads.show', compact('lead'));
     }
 
     public function update(Request $request, $id)
@@ -297,6 +406,28 @@ class LeadController extends Controller
 
             return response()->json(['error' => 'Something went wrong.'], 500);
         }
+    }
+
+    public function updateDealStage(Request $request)
+    {
+        $request->validate([
+            'lead_id' => 'required|exists:leads,id',
+            'stage_id' => 'nullable|exists:deal_stages,id',
+        ]);
+
+        $lead = Lead::findOrFail($request->lead_id);
+
+        if ($lead->deal) {
+            $lead->deal->deal_stage_id = $request->stage_id;
+            $lead->deal->save();
+        } else {
+            // If no deal exists yet, you can optionally create one
+            $lead->deal()->create([
+                'deal_stage_id' => $request->stage_id,
+            ]);
+        }
+
+        return response()->json(['message' => 'Deal stage updated successfully.']);
     }
 
     public function addSource(Request $request)

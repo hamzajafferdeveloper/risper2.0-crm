@@ -207,7 +207,7 @@
         <button id="saveBtn" type="submit" class="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 shadow">
             Save
         </button>
-        <button type="button" id="closeModal" class="text-gray-500 hover:text-gray-700" data-dismiss="modal">Cancel</button>
+        <button type="button" id={{ 'close'.$formId }} class="text-gray-500 hover:text-gray-700" data-dismiss="modal">Cancel</button>
     </div>
 </form>
 

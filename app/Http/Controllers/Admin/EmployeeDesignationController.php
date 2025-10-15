@@ -9,22 +9,6 @@ use Illuminate\Http\Request;
 class EmployeeDesignationController extends Controller
 {
     /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
@@ -43,19 +27,13 @@ class EmployeeDesignationController extends Controller
     }
 
     /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit($id)
     {
-        //
+        $employeeDesignation = EmployeeDesignation::findOrFail($id);
+
+        return response()->json($employeeDesignation);
     }
 
     /**
@@ -67,7 +45,7 @@ class EmployeeDesignationController extends Controller
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'parent_id' => 'nullable|exists:employee_designations,id|not_in:' . $employee_designation->id,
+            'parent_id' => 'nullable|exists:employee_designations,id|not_in:'.$employee_designation->id,
         ]);
 
         $employee_designation->update($validated);
@@ -88,7 +66,7 @@ class EmployeeDesignationController extends Controller
         $employee_designation->delete();
 
         return response()->json([
-            'message' => 'Employee Designation deleted successfully'
+            'message' => 'Employee Designation deleted successfully',
         ], 200);
     }
 }

@@ -3,35 +3,54 @@
 @section('title', 'Dashboard')
 
 @section('content-admin')
-    <div class="grid grid-cols-12">
+    <div class="grid grid-cols-12 gap-4 px-4 sm:px-6 lg:px-8">
         <div class="col-span-12">
             <div class="card border-0 overflow-hidden">
-                <div class="card-header flex items-center justify-between">
-                    <h6 class="card-title mb-0 text-lg">All Leads</h6>
-                    <div>
+
+                <!-- Filters -->
+                @include('admin.leads.partials.filter')
+
+                <div
+                    class="card-header flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-gray-200 dark:border-gray-700 px-6 py-5 bg-white/70 dark:bg-gray-900/50 backdrop-blur-sm">
+                    <h6
+                        class="text-xl font-semibold text-gray-800 dark:text-gray-100 flex items-center gap-2 tracking-tight">
+                        <iconify-icon icon="solar:users-group-rounded-bold-duotone"
+                            class="text-[#8D35E3] text-2xl"></iconify-icon>
+                        All Leads
+                    </h6>
+
+                    <div class="flex items-center gap-3">
+
+                        <!-- Add Lead Button -->
                         <button id="openAddLeadModal"
-                            class="flex items-center gap-2 !bg-[#8D35E3] hover:!bg-[#8D35E3]/80 text-white font-medium px-2.5 py-2.5 rounded-lg float-end me-4 transition">
-                            <iconify-icon icon="simple-line-icons:plus" class="text-lg"></iconify-icon>
-                            <p class="text-sm">Add Lead</p>
+                            class="flex items-center gap-2 !bg-gradient-to-r from-[#8D35E3] to-[#7B2FCC] hover:from-[#7B2FCC] hover:to-[#8D35E3] text-white font-medium px-4 py-2.5 rounded-lg shadow-md transition-all duration-200 hover:shadow-lg focus:ring-2 focus:ring-[#8D35E3]/30">
+                            <iconify-icon icon="simple-line-icons:plus" class="text-base"></iconify-icon>
+                            <span>Add Lead</span>
                         </button>
                     </div>
                 </div>
 
-                <div class="card-body">
+                <div
+                    class="overflow-x-auto sm:overflow-x-visible overflow-y-auto scrollbar-thin scrollbar-thumb-[#8D35E3]/70 scrollbar-track-transparent">
                     <table id="lead-table"
-                        class="border border-neutral-200 dark:border-neutral-600 rounded-lg border-separate">
-                        <thead>
+                        class="min-w-full text-sm text-left text-gray-700 dark:text-gray-200 border-separate border-spacing-y-1">
+                        <thead
+                            class="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 sticky top-0 z-10 shadow-sm">
                             <tr>
-                                <th>S.L</th>
-                                <th>Name</th>
-                                <th>Email</th>
-                                <th>Added By</th>
-                                <th>Lead Owner</th>
-                                <th>Created At</th>
-                                <th>Action</th>
+                                <th class="px-4 py-3 font-semibold whitespace-nowrap">S.L</th>
+                                <th class="px-4 py-3 font-semibold whitespace-nowrap">Name</th>
+                                <th class="px-4 py-3 font-semibold whitespace-nowrap">Email</th>
+                                <th class="px-4 py-3 font-semibold whitespace-nowrap">Added By</th>
+                                <th class="px-4 py-3 font-semibold whitespace-nowrap">Lead Owner</th>
+                                <th class="px-4 py-3 font-semibold whitespace-nowrap">Lead Watcher</th>
+                                <th class="px-4 py-3 font-semibold whitespace-nowrap">Lead Stage</th>
+                                <th class="px-4 py-3 font-semibold whitespace-nowrap">Date</th>
+                                <th class="px-4 py-3 font-semibold whitespace-nowrap text-center">Action</th>
                             </tr>
                         </thead>
-                        <tbody></tbody>
+                        <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
+                            <!-- Dynamic Rows -->
+                        </tbody>
                     </table>
                 </div>
             </div>
@@ -74,14 +93,51 @@
         let table;
 
         $(document).ready(function() {
+            // Destroy old table if exists
             if ($.fn.DataTable.isDataTable('#lead-table')) {
                 $('#lead-table').DataTable().destroy();
             }
 
-            table = $('#lead-table').DataTable({
+            $('.select2').each(function() {
+                const placeholder = $(this).data('placeholder') || 'Select option';
+
+                $(this).select2({
+                    width: 'resolve',
+                    placeholder: placeholder,
+                    allowClear: true,
+                    templateResult: formatStageOption, // Adds color dot for stages
+                    templateSelection: formatStageOption
+                });
+            });
+
+            // Color formatting for "Stage" dropdown only
+            function formatStageOption(option) {
+                if (!option.id) return option.text;
+                const color = $(option.element).data('color');
+                if (color) {
+                    return $(
+                        '<span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:' +
+                        color + ';margin-right:6px;"></span>' + option.text + '</span>');
+                }
+                return option.text;
+            }
+
+
+            // ✅ DataTable initialization with filters
+            let table = $('#lead-table').DataTable({
                 processing: true,
                 serverSide: true,
-                ajax: "{{ route('admin.leads.index') }}",
+                ajax: {
+                    url: "{{ route('admin.leads.index') }}",
+                    data: function(d) {
+                        d.added_by = $('#filterAddedBy').val();
+                        d.owner_id = $('#filterOwner').val();
+                        d.watcher_id = $('#filterWatcher').val();
+                        d.stage_id = $('#filterStage').val();
+                        d.start_date = $('#startDate').val();
+                        d.end_date = $('#endDate').val();
+                    }
+                },
                 columns: [{
                         data: 'DT_RowIndex',
                         name: 'DT_RowIndex',
@@ -90,13 +146,15 @@
                     },
                     {
                         data: 'name',
-                        name: 'name'
+                        name: 'name',
+                        render: function(data, type, row) {
+                            return `<a href="/admin/leads/${row.id}" class="text-[#8D35E3] hover:underline">${data}</a>`;
+                        }
                     },
                     {
                         data: 'email',
                         name: 'email'
                     },
-
                     {
                         data: 'lead_added_by_name',
                         name: 'lead_added_by_name'
@@ -106,10 +164,16 @@
                         name: 'lead_owner_name'
                     },
                     {
+                        data: 'deal_watcher_name',
+                        name: 'deal_watcher_name'
+                    },
+                    {
+                        data: 'deal_stage_name',
+                        name: 'deal_stage_name'
+                    },
+                    {
                         data: 'created_at',
-                        name: 'created_at',
-                        orderable: false,
-                        searchable: false
+                        name: 'created_at'
                     },
                     {
                         data: 'action',
@@ -121,15 +185,61 @@
                 order: [
                     [1, 'asc']
                 ],
-                pagingType: "full_numbers",
-                language: {
-                    paginate: {
-                        first: "« First",
-                        last: "Last »",
-                        previous: "‹",
-                        next: "›"
-                    }
+                drawCallback: function() {
+                    // re-init select2 in table after draw
+                    $('.deal-stage-select').select2({
+                        width: '100%'
+                    });
                 }
+            });
+
+            // Auto-apply filters when any filter changes (selects + dates)
+            $('#filterAddedBy, #filterOwner, #filterWatcher, #filterStage').on('change', function() {
+                table.ajax.reload();
+            });
+            // date inputs: react to change and typing (some browsers)
+            $('#startDate, #endDate').on('change input', function() {
+                table.ajax.reload();
+            });
+
+            // ✅ Apply & Reset Filter Buttons
+            $('#applyFilters').on('click', () => table.ajax.reload());
+            $('#resetFilters').on('click', () => {
+                $('#filterAddedBy, #filterOwner, #filterWatcher, #filterStage').val('').trigger('change');
+                $('#startDate, #endDate').val('');
+                table.ajax.reload();
+            });
+
+            // ✅ Column visibility toggle dropdown
+            $('#columnToggleBtn').on('click', function(e) {
+                e.stopPropagation();
+                $('#columnToggleMenu').toggleClass('hidden');
+            });
+
+            $(document).on('click', function(e) {
+                if (!$(e.target).closest('#columnToggleBtn, #columnToggleMenu').length) {
+                    $('#columnToggleMenu').addClass('hidden');
+                }
+            });
+
+            // Toggle columns
+            $('input.toggle-vis').on('change', function(e) {
+                let column = table.column($(this).attr('data-column'));
+                column.visible(!column.visible());
+            });
+
+            // ✅ Handle Deal Stage Update
+            $(document).on('change', '.deal-stage-select', function() {
+                const leadId = $(this).data('lead-id');
+                const stageId = $(this).val();
+                $.post("{{ route('admin.leads.updateStage') }}", {
+                    _token: "{{ csrf_token() }}",
+                    lead_id: leadId,
+                    stage_id: stageId
+                }, function(res) {
+                    toastr.success(res.message || "Stage updated!");
+                    table.ajax.reload(null, false);
+                }).fail(() => toastr.error("Error updating stage"));
             });
 
             function confirmDelete(action) {
@@ -325,7 +435,7 @@
                             'Lead added successfully!');
                         form[0].reset();
                         closeModal(leadId ? 'editLeadModal' : 'addLeadModal', leadId ?
-                        'editLeadPanel' : 'addLeadPanel');
+                            'editLeadPanel' : 'addLeadPanel');
                         table.ajax.reload();
                     },
                     error: function(xhr) {

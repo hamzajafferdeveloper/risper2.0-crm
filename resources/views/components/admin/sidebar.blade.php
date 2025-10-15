@@ -13,7 +13,7 @@
         <ul class="sidebar-menu" id="sidebar-menu">
 
             <li>
-                <a href="#">
+                <a href="{{ route('admin.dashboard') }}">
                     <iconify-icon icon="hugeicons:computer" class="menu-icon"></iconify-icon>
                     <span>Dashboard</span>
                 </a>
@@ -25,7 +25,7 @@
                 </a>
             </li>
             <li>
-                <a href="#">
+                <a href={{ route('admin.clients.index') }}>
                     <iconify-icon icon="streamline:baggage" class="menu-icon"></iconify-icon>
                     <span>Clients</span>
                 </a>
@@ -55,7 +55,7 @@
                 </a>
             </li>
             <li>
-                <a href={{ route('admin.settings.index') }}>
+                <a href={{ route('admin.settings.business-address') }}>
                     <iconify-icon icon="icon-park-outline:setting-two" class="menu-icon"></iconify-icon>
                     <span>Settings</span>
                 </a>
