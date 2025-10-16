@@ -10,7 +10,10 @@
                 @include('admin.client.partials.filter')
 
                 <div class="card-header flex items-center justify-between">
-                    <h6 class="card-title mb-0 text-lg">All Clients</h6>
+                    <div class="flex gap-1 ">
+                        <iconify-icon icon="solar:bag-2-bold-duotone" class="text-[#8D35E3] text-2xl"></iconify-icon>
+                        <h6 class="card-title mb-0 text-xl">All Clients</h6>
+                    </div>
                     <div>
                         <button id="openAddClientModal"
                             class="flex items-center gap-2 !bg-[#8D35E3] hover:!bg-[#8D35E3]/80 text-white font-medium px-2.5 py-2.5 rounded-lg float-end me-4 transition">
@@ -22,22 +25,25 @@
 
                 <div class="card-body">
                     <table id="Client-table"
-                        class="border border-neutral-200 dark:border-neutral-600 rounded-lg border-separate">
-                        <thead>
+                        class="min-w-full text-sm text-left text-gray-700 dark:text-gray-200 border-separate border-spacing-y-1">
+                        <thead
+                            class="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 sticky top-0 z-10 shadow-sm">
                             <tr>
-                                <th>S.L</th>
-                                <th>Image</th>
-                                <th>Name</th>
-                                <th>Email</th>
-                                <th>Mobile</th>
-                                <th>Company</th>
-                                <th>Category</th>
-                                <th>Added By</th>
-                                <th>Date</th>
-                                <th>Action</th>
+                                <th class="px-4 py-3 font-semibold whitespace-nowrap">S.L</th>
+                                <th class="px-4 py-3 font-semibold whitespace-nowrap">Image</th>
+                                <th class="px-4 py-3 font-semibold whitespace-nowrap">Name</th>
+                                <th class="px-4 py-3 font-semibold whitespace-nowrap">Email</th>
+                                <th class="px-4 py-3 font-semibold whitespace-nowrap">Mobile</th>
+                                <th class="px-4 py-3 font-semibold whitespace-nowrap">Company</th>
+                                <th class="px-4 py-3 font-semibold whitespace-nowrap">Category</th>
+                                <th class="px-4 py-3 font-semibold whitespace-nowrap">Added By</th>
+                                <th class="px-4 py-3 font-semibold whitespace-nowrap">Date</th>
+                                <th class="px-4 py-3 font-semibold whitespace-nowrap text-center">Action</th>
                             </tr>
                         </thead>
-                        <tbody></tbody>
+                        <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
+                            <!-- Dynamic Rows -->
+                        </tbody>
                     </table>
                 </div>
             </div>

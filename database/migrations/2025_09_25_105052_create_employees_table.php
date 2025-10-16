@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('employees', function (Blueprint $table) {
             $table->id();
-            $table->string('employee_id');
+            $table->string('employee_id')->nullable();
             $table->enum('salutation', ['Mr', 'Mrs', 'Miss', 'Dr.', 'Sir', 'Madam'])->default('Mr');
             $table->string('name');
             $table->string('email');

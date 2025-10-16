@@ -1,6 +1,6 @@
-<div class="flex items-center justify-center p-1 bg-gray-50 dark:bg-gray-900">
+<div class="flex items-center justify-center w-full bg-white dark:bg-gray-800 shadow-lg rounded-xl p-1 transition-all duration-300 border border-gray-100 dark:border-gray-700">
     <div
-        class="flex px-3 flex-wrap justify-center items-center gap-3 bg-white dark:bg-gray-800 shadow-lg rounded-xl p-1 transition-all duration-300 border border-gray-100 dark:border-gray-700">
+        class="flex px-3 flex-wrap justify-center items-center gap-3 ">
 
         <!-- Column visibility dropdown -->
         <div class="relative">

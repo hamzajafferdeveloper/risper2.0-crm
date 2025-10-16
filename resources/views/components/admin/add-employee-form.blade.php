@@ -6,12 +6,6 @@
         <!-- Left Section -->
         <div class="flex flex-col gap-3 sm:w-[calc(100%-208px)] w-full mr-4">
             <div class="sm:flex gap-3">
-                <!-- Employee ID -->
-                <div class="w-full sm:w-1/3">
-                    <label class="form-label">Employee ID *</label>
-                    <input type="text" name="employee_id" class="form-control" required>
-                </div>
-
                 <!-- Salutation -->
                 <div class="w-full sm:w-1/3">
                     <label class="form-label">Salutation</label>
@@ -308,7 +302,7 @@
             <select name="employee_type_id" class="form-select select2">
                 <option value="">Select</option>
                 @foreach ($employment_types as $et)
-                    <option value="{{ $et->id }}">{{ $et->name }}</option>
+                    <option value="{{ $et->id }}">{{ $et->type }}</option>
                 @endforeach
             </select>
         </div>

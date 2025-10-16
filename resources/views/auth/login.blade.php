@@ -55,7 +55,6 @@
                     class="loader hidden w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
             </button>
         </form>
-
     </div>
 @endsection
 
@@ -84,16 +83,23 @@
             $("#loginForm").on("submit", function(e) {
                 e.preventDefault();
 
+                const $form = $(this);
                 const $btn = $("#loginBtn");
                 const $text = $btn.find(".btn-text");
                 const $loader = $btn.find(".loader");
 
-                // Show loading state
+                // Activate loading state
                 $btn.prop("disabled", true);
                 $text.text("Signing in...");
                 $loader.removeClass("hidden");
 
-                let formData = $(this).serialize();
+                // Apply opacity & disable interaction
+                $form.css({
+                    opacity: "0.5",
+                    pointerEvents: "none"
+                });
+
+                let formData = $form.serialize();
 
                 $.ajax({
                     url: "{{ route('authenticate') }}",
@@ -101,11 +107,9 @@
                     data: formData,
                     success: function(response) {
                         if (response.success) {
-                            window.location.href = response.redirect ||
-                                "{{ route('admin.dashboard') }}";
+                            window.location.href = response.redirect || "{{ route('admin.dashboard') }}";
                         } else {
-                            $("#errorBox").removeClass("hidden").html(response.message ||
-                                "Login failed.");
+                            $("#error-general").removeClass("hidden").text(response.message || "Login failed.");
                         }
                     },
                     error: function(xhr) {
@@ -122,15 +126,20 @@
                         } else if (message) {
                             $("#error-general").removeClass("hidden").text(message);
                         } else {
-                            $("#error-general").removeClass("hidden").text(
-                                "Unauthorized request.");
+                            $("#error-general").removeClass("hidden").text("Unauthorized request.");
                         }
                     },
                     complete: function() {
-                        // Hide loading state
+                        // Reset loading state
                         $btn.prop("disabled", false);
                         $text.text("Sign In");
                         $loader.addClass("hidden");
+
+                        // Restore form interactivity
+                        $form.css({
+                            opacity: "1",
+                            pointerEvents: "auto"
+                        });
                     }
                 });
             });

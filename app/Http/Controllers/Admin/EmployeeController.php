@@ -24,29 +24,60 @@ class EmployeeController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $employees = Employee::with('department', 'designation');
+            $query = Employee::with('reportingTo', 'department', 'designation');
 
-            return DataTables::of($employees)
+            if ($request->reporting_to) {
+                $query->where('reporting_to', $request->reporting_to);
+            }
+
+            if ($request->designation_id) {
+                $query->where('designation_id', $request->designation_id);
+            }
+
+            if ($request->department_id) {
+                $query->where('department_id', $request->department_id);
+            }
+
+            return DataTables::of($query)
                 ->addIndexColumn()
+                ->addColumn('reporting_to', function ($row) {
+                    $user = $row->reportingTo;
+                    if (! $user) {
+                        return '-';
+                    }
+
+                    $image = $user->profile_pic
+                        ? asset('storage/'.$user->profile_pic)
+                        : asset('assets/images/avatar/avatar.png');
+
+                    return '
+                        <div class="flex items-center gap-2">
+                            <img src="'.$image.'" alt="'.e($user->name).'" class="w-8 h-8 rounded-full object-cover border">
+                            <span>'.e($user->name).'</span>
+                        </div>
+                    ';
+                })
                 ->addColumn('department_name', function ($row) {
                     return $row->department ? $row->department->name : '-';
                 })
-                ->addColumn('designation_name', function ($row) {
+                ->addColumn('designation', function ($row) {
                     return $row->designation ? $row->designation->name : '-';
                 })
                 ->addColumn('action', function ($row) {
                     return '
-                        <button class="btn btn-sm !bg-[#8D35E3] hover:!bg-[#8D35E3]/80 focus:!bg-[#8D35E3]/80 active:!bg-[#8D35E3]/80 dark:!bg-[#8D35E3]/80 dark:hover:!bg-[#8D35E3]/80 dark:focus:!bg-[#8D35E3]/80 dark:active:!bg-[#8D35E3]/80 text-white p-2 rounded editEmployee"
-                                data-id="'.$row->id.'" title="Edit">
-                            <iconify-icon icon="mdi:pencil" class="text-lg"></iconify-icon>
-                        </button>
+                        <div class="flex gap-2">
+                            <button class="btn btn-sm !bg-[#8D35E3] hover:!bg-[#8D35E3]/80 focus:!bg-[#8D35E3]/80 active:!bg-[#8D35E3]/80 dark:!bg-[#8D35E3]/80 dark:hover:!bg-[#8D35E3]/80 dark:focus:!bg-[#8D35E3]/80 dark:active:!bg-[#8D35E3]/80 text-white p-2 rounded editEmployee"
+                                    data-id="'.$row->id.'" title="Edit">
+                                <iconify-icon icon="mdi:pencil" class="text-lg"></iconify-icon>
+                            </button>
 
-                        <button data-id="'.$row->id.'" class="btn btn-sm !bg-red-500 hover:!bg-red-500/80 focus:!bg-red-500/80 active:!bg-red-500/80 dark:!bg-red-500/80 dark:hover:!bg-red-500/80 dark:focus:!bg-red-500/80 dark:active:!bg-red-500/80 text-white p-2 rounded deleteEmployee" title="Delete">
-                            <iconify-icon icon="mage:trash" class="text-lg"></iconify-icon>
-                        </button>
+                            <button data-id="'.$row->id.'" class="btn btn-sm !bg-red-500 hover:!bg-red-500/80 focus:!bg-red-500/80 active:!bg-red-500/80 dark:!bg-red-500/80 dark:hover:!bg-red-500/80 dark:focus:!bg-red-500/80 dark:active:!bg-red-500/80 text-white p-2 rounded deleteEmployee" title="Delete">
+                                <iconify-icon icon="mage:trash" class="text-lg"></iconify-icon>
+                            </button>
+                        </div>
                     ';
                 })
-                ->rawColumns(['status', 'action']) // allow HTML
+                ->rawColumns(['status', 'action', 'reporting_to']) // allow HTML
                 ->make(true);
         }
 
@@ -59,7 +90,7 @@ class EmployeeController extends Controller
 
         try {
             $validated = $request->validate([
-                'employee_id' => 'required|string|max:50|unique:employees,employee_id',
+                // 'employee_id' => 'required|string|max:50|unique:employees,employee_id',
                 'salutation' => 'in:Mr,Mrs,Miss,Dr.,Sir,Madam',
                 'name' => 'required|string|max:255',
                 'email' => 'required|email|unique:employees,email',
@@ -114,6 +145,10 @@ class EmployeeController extends Controller
             // ✅ Create employee
             $employee = Employee::create($validated);
 
+            // ✅ Auto-generate employee_id (EMP-{id})
+            $employee->employee_id = 'EMP-'.$employee->id;
+            $employee->save();
+
             return response()->json([
                 'message' => 'Employee created successfully.',
                 'data' => $employee,
@@ -133,7 +168,9 @@ class EmployeeController extends Controller
 
     public function show($id)
     {
-        // return view("");
+        $employee = Employee::with('designation', 'department', 'reportingTo', 'country', 'language', 'currency', 'employmentType', 'businessAddress')->findOrFail($id);
+
+        return view('admin.employees.show', compact('employee'));
     }
 
     public function edit($id)
@@ -179,7 +216,7 @@ class EmployeeController extends Controller
         try {
             $employee = Employee::findOrFail($id);
             $validated = $request->validate([
-                'employee_id' => 'required|string|max:50|unique:employees,employee_id,'.$employee->id,
+                // 'employee_id' => 'required|string|max:50|unique:employees,employee_id,'.$employee->id,
                 'salutation' => 'in:Mr,Mrs,Miss,Dr.,Sir,Madam',
                 'name' => 'required|string|max:255',
                 'email' => 'required|email|unique:employees,email,'.$employee->id,
@@ -234,7 +271,7 @@ class EmployeeController extends Controller
             }
 
             // Convert skills string into array
-                $validated['skills'] =  $validated['skills'] = $request->filled('skills') ? explode(',', $request->input('skills')) : [];
+            $validated['skills'] = $validated['skills'] = $request->filled('skills') ? explode(',', $request->input('skills')) : [];
 
             // Update employee
             $employee->update($validated);
