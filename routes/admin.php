@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\BannerController;
 use App\Http\Controllers\Admin\BusinessAddressController;
 use App\Http\Controllers\Admin\ClientController;
 use App\Http\Controllers\Admin\DealController;
@@ -144,4 +145,13 @@ Route::prefix('admin')->middleware('isAdmin')->name('admin.')->group(function ()
         Route::put('/{id}', [BusinessAddressController::class, 'update'])->name('update');
         Route::delete('/{id}', [BusinessAddressController::class, 'destroy'])->name('delete');
     });
+
+    Route::prefix('banners')->name('banners.')->group(function () {
+        Route::get('/', [BannerController::class, 'index'])->name('index');
+        Route::post('/add', [BannerController::class, 'store'])->name('store');
+        Route::get('/{id}/edit', [BannerController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [BannerController::class, 'update'])->name('update');
+        Route::delete('/{id}', [BannerController::class, 'destroy'])->name('delete');
+    });
+
 });

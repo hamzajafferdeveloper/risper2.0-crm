@@ -49,9 +49,9 @@
                 </a>
             </li>
             <li>
-                <a href="#">
+                <a href={{ route('admin.banners.index') }}>
                     <iconify-icon icon="solar:folder-with-files-linear" class="menu-icon"></iconify-icon>
-                    <span>Files</span>
+                    <span>Banners</span>
                 </a>
             </li>
             <li>

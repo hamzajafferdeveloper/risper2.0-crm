@@ -1,0 +1,24 @@
+WEEK 1
+
+	- Leads management
+	- Clients -  RISE CRM
+	- Banner Manager- RISE CRM
+
+
+WEEK 2
+
+	- Work ( Projects & tasks )  : almost similar like Worksuite CRM
+	- Custom Fields ( almost similar like Worksuite & RISE CRM)
+	- Tables Filters option & table colum name -RISE CRM
+
+WEEK 3
+
+	- Licensing system integration,  Audit log, and Initial CRM sample view.
+	- Tickets -RISE CRM
+	- Events , Message , Notice board
+
+WEEK 4
+
+	- Dashboard   - RISE CRM
+	- Finance ( sales , payments , expenses Proposal, estimate, Invoice , Contract  and their templates ) - RISE CRM
+	- Email Templates - RISE CRM

@@ -263,18 +263,27 @@
             $('#editAddressForm').on('submit', function(e) {
                 e.preventDefault();
                 const id = $('#edit_id').val();
+                const formData = $(this).serialize() + '&_method=PUT';
+
                 $.ajax({
-                    url: `/admin/settings/business-addresses/${id}`,
-                    method: 'PUT',
-                    data: $(this).serialize(),
+                    url: `/admin/business-addresses/${id}`,
+                    method: 'POST', // Laravel will detect PUT via _method
+                    data: formData,
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
                     success: () => {
                         toastr.success('Business address updated successfully!');
                         $('#editAddressModal').addClass('hidden');
-                        table.ajax.reload();
+                        table.ajax.reload(null, false); // reload without full page
                     },
-                    error: () => toastr.error('Failed to update address.')
+                    error: (xhr) => {
+                        console.error(xhr.responseText);
+                        toastr.error('Failed to update address.');
+                    }
                 });
             });
+
 
             // Delete
             $(document).on('click', '.deleteAddress', function() {
