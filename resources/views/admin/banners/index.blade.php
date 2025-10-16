@@ -162,14 +162,16 @@
         }
 
         async function deleteBanner(id) {
-            if (!confirm('Delete this banner?')) return;
-            const res = await fetch(`/admin/banners/${id}`, {
-                method: 'DELETE',
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                }
+            confirmDelete(() => {
+                const res = await fetch(`/admin/banners/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    }
+                });
+                if (res.ok) reloadGrid();
             });
-            if (res.ok) reloadGrid();
+
         }
     </script>
 @endsection

@@ -36,6 +36,12 @@
                     <span>Leads</span>
                 </a>
             </li>
+             <li>
+                <a href="{{ route('admin.projects.index') }}">
+                    <iconify-icon icon="la:project-diagram" class="menu-icon"></iconify-icon>
+                    <span>Projects</span>
+                </a>
+            </li>
             {{-- <li>
                 <a href={{ route('admin.deals.index') }}>
                     <iconify-icon icon="fluent-emoji-high-contrast:handshake" class="menu-icon"></iconify-icon>

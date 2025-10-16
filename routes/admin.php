@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\EmployeeDesignationController;
 use App\Http\Controllers\Admin\EmploymentTypeController;
 use App\Http\Controllers\Admin\LanguageController;
 use App\Http\Controllers\Admin\LeadController;
+use App\Http\Controllers\Admin\ProjectController;
 use App\Http\Controllers\Admin\SettingsController;
 use Illuminate\Support\Facades\Route;
 
@@ -152,6 +153,16 @@ Route::prefix('admin')->middleware('isAdmin')->name('admin.')->group(function ()
         Route::get('/{id}/edit', [BannerController::class, 'edit'])->name('edit');
         Route::put('/{id}', [BannerController::class, 'update'])->name('update');
         Route::delete('/{id}', [BannerController::class, 'destroy'])->name('delete');
+    });
+
+
+
+    Route::prefix('projects')->name('projects.')->group(function () {
+        Route::get('/', [ProjectController::class, 'index'])->name('index');
+        Route::post('/add', [ProjectController::class, 'store'])->name('store');
+        Route::get('/{id}/edit', [ProjectController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [ProjectController::class, 'update'])->name('update');
+        Route::delete('/{id}', [ProjectController::class, 'destroy'])->name('delete');
     });
 
 });
