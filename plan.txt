@@ -1,15 +1,15 @@
 WEEK 1
 
-	- Leads management
-	- Clients -  RISE CRM
-	- Banner Manager- RISE CRM
+	- ✅ Leads management
+	- ✅ Clients -  RISE CRM
+	- ✅ Banner Manager- RISE CRM
 
 
 WEEK 2
 
 	- Work ( Projects & tasks )  : almost similar like Worksuite CRM
 	- Custom Fields ( almost similar like Worksuite & RISE CRM)
-	- Tables Filters option & table colum name -RISE CRM
+	- ✅ Tables Filters option & table colum name -RISE CRM
 
 WEEK 3
 
